@@ -5,8 +5,8 @@
 #include <avr/pgmspace.h>
 
 #define PS_DICT_MAX (197)
-#define CMD_DIC_LEN (162)
-#define CMD_TABLE_LEN (23)
+#define CMD_DIC_LEN (171)
+#define CMD_TABLE_LEN (24)
 
 extern const PROGMEM uint8_t CMD_DICT[];
 extern const PROGMEM uint16_t CMD_TABLE[];
@@ -62,6 +62,7 @@ extern const PROGMEM uint32_t PS_DICT[];
 #define EX_LORA_SET_ADR_OFF      0x14	// lorawan set_adr off\r []
 #define EX_LORA_SET_ADR_ON       0x15	// lorawan set_adr on\r []
 #define EX_LORA_SET_LINK         0x16	// lorawan set_linkchk\r []
+#define EX_MOD_SET_BAUD          0x17	// mod set_baudrate <F> [ex_resetAfter]
 
 #endif
 
