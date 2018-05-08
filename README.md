@@ -25,8 +25,8 @@ TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装であ
 日本向け Region AS923 に対応した TLM922S-P01A を搭載した製品は、日本では以下で販売されている。
 いずれも Kiwi Tech の正規 OEM品だが、書き込まれている Firmwareには各社毎の差異がある。
 
-    SenseWay Inc. [ADB922S](http://amzn.asia/6cFHc8C)
-    SORACOM / A-BIT [AL-050](https://soracom.jp/products/lora/al-050/)
+	SenseWay Inc. [ADB922S](http://amzn.asia/6cFHc8C)
+	SORACOM / A-BIT [AL-050](https://soracom.jp/products/lora/al-050/)
 
 # Arduino IDE への導入
 

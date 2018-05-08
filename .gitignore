@@ -35,5 +35,5 @@
 .DS_Store
 
 # local
-#.gitignore
+.gitignore
 
