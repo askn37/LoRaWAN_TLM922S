@@ -4,29 +4,33 @@ Kiwi Technology TLM922S-P01A LoRaWAN Module シリーズのための実装（for
 
 # 概要
 
-本Arduino向けモジュールは Kiwi Technology社の製造する
+本Arduino向けライブラリは Kiwi Technology社の製造する
 TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装である。
 
 この TLM922S-P01A LoRaWAN Module の基本操作は、ターミナル対話型になっている。
-このため人間が直接読み書きするにはわかりやすいのだが、
+このため PCに直結して、試しに人間が直接読み書きするにはわかりやすいのだが、
 大量の文字列解析処理を伴うため、ATコマンド実装のように自動処理化するのは難しい。
 ましてや CPU速度もメモリ量も制約の多い Arduino / 8bit AVR ではかくもいわんやである。
 
-本Arduino向けモジュールの実装は、LoRaWAN操作コマンドをラップしたメソッド群を備え、
-プロンプト応答をメタコード化して、スケッチから扱いやすくしたものである。
-コマンドとメソッドは基本的に 1対1で直交している。
+本Arduino向けライブラリは、LoRaWAN操作コマンドをラップしたメソッド群を備え、
+プロンプト応答をメタコード化して、スケッチから扱いやすく工夫したものである。
+コマンドとメソッドは基本的に 1対1で直交している。
 
 一方でフットプリントの削減と小メモリ化のためもあり、対応コマンドは最小限に絞った。
 特に、日本で使用すると電波法に抵触する可能性のある電波設定系コマンド等には対応しない。
 
 一般的な用法では、9KB程度のフットプリントと、1KB程度の SRAM空き容量があれば動作する。
-これは Arduino UNO R3 で、GPS とMicroSDシールドがぎりぎりで併用できる程度である。
+これは Arduino UNO R3 で、GPS とMicroSDシールドをどうにか併用できるレベルである。
 
 日本向け Region AS923 に対応した TLM922S-P01A を搭載した製品は、日本では以下で販売されている。
-いずれも Kiwi Tech の正規 OEM品だが、書き込まれている Firmwareには各社毎の差異がある。
+いずれも Kiwi Tech 製造の正規 OEM品だが、書き込まれている Firmwareには各社毎に差異がある。
 
 - SenseWay Inc. [ADB922S](http://amzn.asia/6cFHc8C)
 - SORACOM / A-BIT [AL-050](https://soracom.jp/products/lora/al-050/)
+
+いずれも推奨動作電圧は 3.3Vだが、5V系の Arduinoに直結しても壊れることはない。
+ただし互換機によっては 3.3V出力電力が要求に満たず（純正 UNO R3が 150mAに対し、多くは 50mA以下）正常動作を害する。
+安定して運用するには 150mA以上の定電圧レギュレータと、33uF以上の平滑コンデンサを必要とする。
 
 # Arduino IDE への導入
 
@@ -38,7 +42,7 @@ TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装であ
 
 3. 依存関係があるライブラリも同様に読み込む
 
-	[MultiUART](https://github.com/askn37/MultiUART)
+	[MultiUART](https://github.com/askn37/MultiUART) -- SoftwareSerial で代用も可能（後述）
 
 # 使い方
 

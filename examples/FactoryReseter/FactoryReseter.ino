@@ -17,9 +17,9 @@
 
 #define CONSOLE_BAUD	9600
 
-#define TX_PIN		12			// O to I TLM_MISO/RX(12)
-#define RX_PIN		11			// I to O TLM_MOSI/TX(11)
-#define WAKE_PIN	7			// WakeUpピン
+#define TX_PIN		12			// D12 O to I TLM_MISO/RX(12)
+#define RX_PIN		11			// D11 I to O TLM_MOSI/TX(11)
+#define WAKE_PIN	7			// D7  O to I TLM_INT2/WakeUp/~Sleep(7)
 
 LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
 
