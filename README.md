@@ -29,7 +29,7 @@ TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装であ
 - SORACOM / A-BIT [AL-050](https://soracom.jp/products/lora/al-050/)
 
 いずれも推奨動作電圧は 3.3Vだが、5V系の Arduinoに直結しても壊れることはない。
-ただし互換機によっては 3.3V出力電力が要求に満たず（純正 UNO R3が 150mAに対し、多くは 50mA以下）正常動作を害する。
+ただし互換機によっては 3.3V出力電力が要求に満たず（純正 UNO R3が 150mAに対し、50mA以下の物がある）正常動作を害する。
 安定して運用するには 150mA以上の定電圧レギュレータと、33uF以上の平滑コンデンサを必要とする。
 
 # Arduino IDE への導入
