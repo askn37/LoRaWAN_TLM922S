@@ -26,31 +26,31 @@ LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
 uint32_t baudrateLists[] = {38400, 28800, 19200, 9600};
 
 void setup (void) {
-	Serial.begin(CONSOLE_BAUD);
-	Serial.println(F("Startup"));
+    Serial.begin(CONSOLE_BAUD);
+    Serial.println(F("Startup"));
 
-	LoRaWAN_TLM922S::setThrottle(BAUDRATE_THROTTLE);
-	LoRaWAN.setEchoThrough(ECHO_ON);
+    LoRaWAN_TLM922S::setThrottle(BAUDRATE_THROTTLE);
+    LoRaWAN.setEchoThrough(ECHO_ON);
 
-	for (auto baudrate : baudrateLists) {
-		Serial.println();
-		Serial.print(F("Baudrate: "));
-		Serial.println(baudrate);
-		LoRaWAN.begin(baudrate);
-		if (LoRaWAN.getReady() &&
-			LoRaWAN.factoryReset() &&
-			LoRaWAN.getReady()) {
-			Serial.println(F("  =success"));
-			continue;
-		}
-		else {
-			Serial.println(F("  =failed, unmatch baudrate"));
-		}
-		delay(1000);
-	}
+    for (auto baudrate : baudrateLists) {
+        Serial.println();
+        Serial.print(F("Baudrate: "));
+        Serial.println(baudrate);
+        LoRaWAN.begin(baudrate);
+        if (LoRaWAN.getReady() &&
+            LoRaWAN.factoryReset() &&
+            LoRaWAN.getReady()) {
+            Serial.println(F("  =success"));
+            continue;
+        }
+        else {
+            Serial.println(F("  =failed, unmatch baudrate"));
+        }
+        delay(1000);
+    }
 
-	LoRaWAN.getVersion();
-	LoRaWAN.getDevEUI();
+    LoRaWAN.getVersion();
+    LoRaWAN.getDevEUI();
 }
 
 void loop (void) {}
