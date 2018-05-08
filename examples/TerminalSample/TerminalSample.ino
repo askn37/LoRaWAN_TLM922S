@@ -24,29 +24,29 @@
 LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
 
 void setup (void) {
-	#ifdef BAUDRATE_THROTTLE
+    #ifdef BAUDRATE_THROTTLE
     LoRaWAN_TLM922S::setThrottle(BAUDRATE_THROTTLE);
-	#endif
+    #endif
 
-	pinMode(WAKE_PIN, OUTPUT);
-	digitalWrite(WAKE_PIN, HIGH);
+    pinMode(WAKE_PIN, OUTPUT);
+    digitalWrite(WAKE_PIN, HIGH);
 
-	Serial.begin(LORAWAN_BAUD);
+    Serial.begin(LORAWAN_BAUD);
     Serial.println(F("Startup"));
 
-	LoRaWAN.begin(LORAWAN_BAUD);
-	LoRaWAN.setEchoThrough(ECHO_ON);
-	while (!LoRaWAN.getReady());
-	LoRaWAN.reset();
+    LoRaWAN.begin(LORAWAN_BAUD);
+    LoRaWAN.setEchoThrough(ECHO_ON);
+    while (!LoRaWAN.getReady());
+    LoRaWAN.reset();
 }
 
 void loop (void) {
-	if (Serial.available()) {
-		LoRaWAN.write(Serial.read());
-	}
-	while (LoRaWAN.available()) {
-		Serial.write(LoRaWAN.read());
-	}
+    if (Serial.available()) {
+        LoRaWAN.write(Serial.read());
+    }
+    while (LoRaWAN.available()) {
+        Serial.write(LoRaWAN.read());
+    }
 }
 
 // end if code
