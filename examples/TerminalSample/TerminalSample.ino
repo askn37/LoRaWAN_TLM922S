@@ -9,8 +9,6 @@
  *
  */
 
-#define BAUDRATE_THROTTLE 1009
-
 #include <Arduino.h>
 #include <LoRaWAN_TLM922S.h>
 
@@ -24,10 +22,6 @@
 LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
 
 void setup (void) {
-    #ifdef BAUDRATE_THROTTLE
-    LoRaWAN_TLM922S::setThrottle(BAUDRATE_THROTTLE);
-    #endif
-
     pinMode(WAKE_PIN, OUTPUT);
     digitalWrite(WAKE_PIN, HIGH);
 
@@ -49,4 +43,4 @@ void loop (void) {
     }
 }
 
-// end if code
+// end of code

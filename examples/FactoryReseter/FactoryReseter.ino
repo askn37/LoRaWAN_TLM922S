@@ -26,11 +26,15 @@ LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
 uint32_t baudrateLists[] = {38400, 28800, 19200, 9600};
 
 void setup (void) {
+    pinMode(WAKE_PIN, OUTPUT);
+    digitalWrite(WAKE_PIN, HIGH);
+
     Serial.begin(CONSOLE_BAUD);
     Serial.println(F("Startup"));
 
     LoRaWAN_TLM922S::setThrottle(BAUDRATE_THROTTLE);
     LoRaWAN.setEchoThrough(ECHO_ON);
+    delay(2000);
 
     for (auto baudrate : baudrateLists) {
         Serial.println();
@@ -54,3 +58,5 @@ void setup (void) {
 }
 
 void loop (void) {}
+
+// end of code
