@@ -111,7 +111,7 @@ my @DICTSOURCE = (
     # ["EX_LORA_SET_JOIN_CH", "lorawan set_join_ch ", ""],
 
     # ["EX_LORA_GET_AS923" ,"lorawan get_as923_para\r", "ex_dec Q4"],
-    # ["EX_MOD_SET_BAUD" ,"mod set_baudrate ", "ex_resetAfter"],
+    ["EX_MOD_SET_BAUD" ,"mod set_baudrate ", "ex_resetAfter"],
 );
 
 my(@DICT, $PSDICT, @START);
