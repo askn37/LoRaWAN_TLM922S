@@ -1,6 +1,6 @@
 /***************
  *
- * TerminalSample - TLM922S-P01A terminal console for Arduino
+ * TerminalSample - TLM922S-P01A terminal console sample for Arduino
  *
  * target architectures: Atmel AVR (ATmega 328P, 1284P and other)
  *

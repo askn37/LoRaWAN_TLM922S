@@ -30,12 +30,15 @@ LoRaWAN_TLM922S::LoRaWAN_TLM922S (uint8_t _RX_PIN, uint8_t _TX_PIN)
 //
 
 // プロンプト解析
+// 1キャラクタずつ与え、プロンプトが辞書に見つかったら
+// そのインデックス番号＝プロンプト番号を返す
+// 見つからなければ PS_NOOP
 uint8_t LoRaWAN_TLM922S::parsePrompt (const uint8_t c) {
     static uint32_t prevword = 0;
     uint32_t hash;
     uint32_t newword = prevword | ((uint32_t)c << 16);
     uint16_t index = newword % PS_DICT_MAX;
-    if (!c) return ( prevword = 0 );
+    if (!c) return ( prevword = PS_NOOP );
     while (hash = pgm_read_dword_near(PS_DICT + index)) {
         prevword = index + 0x100;
         if (((hash - newword) << 8) == 0) {
@@ -44,10 +47,12 @@ uint8_t LoRaWAN_TLM922S::parsePrompt (const uint8_t c) {
         index = (index + 1) % PS_DICT_MAX;
     }
     prevword = c;
-    return 0;
+    return PS_NOOP;
 }
 
 // コマンド定型文送信
+// コマンド番号を与えるとそれに応じた文字列を送信する
+// 辞書から得られる文字列は逆順なので末尾から取り出す
 void LoRaWAN_TLM922S::putCommand (const uint8_t command) {
     String work;
     int s;
@@ -67,7 +72,9 @@ void LoRaWAN_TLM922S::putCommand (const uint8_t command) {
     }
     work += (char) addr;
     s = work.length();
-    while (s > 0) this->LORAWAN_TLM922S_SERIAL::write(work[--s]);
+    while (s > 0) {
+        this->LORAWAN_TLM922S_SERIAL::write(work[--s]);
+    }
 }
 
 // 分割時間待ち
@@ -115,7 +122,9 @@ uint8_t LoRaWAN_TLM922S::nextPrompt (uint16_t timeout) {
 
 // 改行を1回打って PS_READY が現れるかを調べる
 bool LoRaWAN_TLM922S::getReady (void) {
-    while (this->LORAWAN_TLM922S_SERIAL::available()) this->LORAWAN_TLM922S_SERIAL::read();
+    while (this->LORAWAN_TLM922S_SERIAL::available()) {
+        this->LORAWAN_TLM922S_SERIAL::read();
+    }
     this->LORAWAN_TLM922S_SERIAL::write('\r');
     uint8_t f = (nextPrompt(100) == PS_READY);
     putEchoBack();
@@ -134,7 +143,7 @@ uint8_t LoRaWAN_TLM922S::skipPrompt (uint8_t ps1, uint8_t ps2, uint16_t timeout)
     return r;
 }
 
-// 指定のコマンドを実行してPS_OKを確認する
+// 指定のコマンドを実行して PS_OK を確認する
 // 第1プロンプト応答に指定時間待つ
 bool LoRaWAN_TLM922S::runCommand (uint8_t command, uint16_t timeout) {
     if (!getReady()) return false;
@@ -146,31 +155,36 @@ bool LoRaWAN_TLM922S::runCommand (uint8_t command, uint16_t timeout) {
     return f;
 }
 
-// 指定のコマンドを実行してPS_OKを確認する
+// 指定のコマンドを実行して PS_ON を確認する
 // 第1プロンプト応答に指定時間待つ
-bool LoRaWAN_TLM922S::getBoolCommand (uint8_t command, uint16_t timeout) {
+bool LoRaWAN_TLM922S::runBoolCommand (uint8_t command, uint16_t timeout) {
     if (!getReady()) return false;
     putCommand(command);
-    uint8_t r = skipPrompt(PS_ON, PS_READY, timeout);
+    uint8_t r = skipPrompt(PS_ON, PS_OFF, timeout);
     uint8_t f = r == PS_ON;
-    if (r != PS_READY) skipPrompt(timeout);
+    skipPrompt(timeout);
     putEchoBack();
     return f;
 }
 
+// 指定のコマンドを実行して 文字列結果 を取得する
+// 第1プロンプト応答に指定時間待つ
 bool LoRaWAN_TLM922S::getStringCommand (uint8_t command, uint16_t timeout) {
     if (!getReady()) return false;
     putCommand(command);
     return parseValue(true, timeout);
 }
 
+// 指定のコマンドを実行して 数値結果 を取得する
+// 第1プロンプト応答に指定時間待つ
 uint32_t LoRaWAN_TLM922S::getValueCommand (uint8_t command, uint16_t timeout) {
     if (!getReady()) return false;
     putCommand(command);
     return parseValue(false, timeout);
 }
 
-// 10進数値を読み取る
+// 受信バッファの現在位置から10進数値を読み取る
+// 空白を見つけたら読み捨てて次の文字で止める
 uint32_t LoRaWAN_TLM922S::parseDecimal (void) {
     uint32_t value = 0;
     while (wait()) {
@@ -192,7 +206,10 @@ uint32_t LoRaWAN_TLM922S::parseDecimal (void) {
     return value;
 }
 
-// HEX文字列を読み取る
+// 現在の位置から HEXDATA を読み取る
+// 結果は _rxData に格納する
+// 非 HexDigit を見つけたらその位置で止める
+// エコーバックは行わない（代わりに取得文字数のサマリを出力する）
 void LoRaWAN_TLM922S::parseHexData (void) {
     uint16_t recv = 0;
     uint8_t x = 0;
@@ -217,6 +234,8 @@ void LoRaWAN_TLM922S::parseHexData (void) {
     }
 }
 
+// 指定の取得結果を得られたら返す
+// t=false で数値結果、t=true で文字列結果真偽
 uint32_t LoRaWAN_TLM922S::parseValue (bool t, uint16_t timeout) {
     bool f = false;
     _value = -1;
@@ -290,6 +309,7 @@ void LoRaWAN_TLM922S::setEchoThrough (bool through) {
     _echo = through;
 }
 
+// リセットコマンドを実行する
 bool LoRaWAN_TLM922S::reset (void) {
     if (!getReady()) return false;
     putCommand(EX_MOD_RESET);
@@ -300,6 +320,7 @@ bool LoRaWAN_TLM922S::reset (void) {
     return f;
 }
 
+// ディープスリープを実行する
 bool LoRaWAN_TLM922S::sleep (uint16_t seconds) {
     if (!getReady()) return false;
     putCommand(EX_MOD_SLEEP);
@@ -313,6 +334,7 @@ bool LoRaWAN_TLM922S::sleep (uint16_t seconds) {
     return true;
 }
 
+// スリープから起きたことを確認する
 bool LoRaWAN_TLM922S::wakeUp (void) {
     uint8_t r = skipPrompt(PS_OK, PS_READY, 1000);
     uint8_t f = r == PS_OK;
@@ -321,10 +343,18 @@ bool LoRaWAN_TLM922S::wakeUp (void) {
     return f;
 }
 
+void LoRaWAN_TLM922S::setBaudRate (long baudrate) {
+    if (!getReady()) return false;
+    putCommand(EX_MOD_SET_BAUD);
+    this->LORAWAN_TLM922S_SERIAL::print(baudrate, DEC);
+    this->LORAWAN_TLM922S_SERIAL::write('\r');
+}
+
 //
 // LoRaWAN通信
 //
 
+// DR値を設定する
 bool LoRaWAN_TLM922S::setDataRate (uint8_t datarate) {
     if (!getReady()) return false;
     putCommand(EX_LORA_SET_DR);
@@ -338,7 +368,7 @@ bool LoRaWAN_TLM922S::setDataRate (uint8_t datarate) {
 }
 
 // join実行
-// 第1プロンプト応答に200ms待つ
+// 第1プロンプト応答に 500ms待つ
 bool LoRaWAN_TLM922S::join (bool abp) {
     if (!getReady()) return false;
     putCommand(abp ? EX_LORA_JOIN_ABP : EX_LORA_JOIN_OTAA);
@@ -350,7 +380,7 @@ bool LoRaWAN_TLM922S::join (bool abp) {
 }
 
 // join実行結果
-// 第2プロンプト応答に最大10000ms待つ
+// 第2プロンプト応答に最大 10000ms待つ
 bool LoRaWAN_TLM922S::joinResult (void) {
     bool f = false;
     wait(10000);
@@ -375,6 +405,7 @@ bool LoRaWAN_TLM922S::joinResult (void) {
 }
 
 // tx送信準備
+// 準備できなければ偽を返す
 bool LoRaWAN_TLM922S::tx (bool confirm, uint8_t fport) {
     if (!getReady()) return false;
     putCommand(confirm ? EX_LORA_TX_CNF : EX_LORA_TX_UCNF);
@@ -384,6 +415,7 @@ bool LoRaWAN_TLM922S::tx (bool confirm, uint8_t fport) {
 }
 
 // tx送信データ
+// 指定のニブル幅を倍整数下位からビッグエンディアン HEXDIGIT で送る
 void LoRaWAN_TLM922S::txData (uint32_t value, int nibble) {
     for (int i = 8; i > 0; i--) {
         if (i <= nibble) {
@@ -395,6 +427,7 @@ void LoRaWAN_TLM922S::txData (uint32_t value, int nibble) {
 }
 
 // tx送信実行
+// 第1プロンプト応答に 500ms待つ
 bool LoRaWAN_TLM922S::txRequest (void) {
     this->LORAWAN_TLM922S_SERIAL::write('\r');
     uint8_t r = skipPrompt(PS_OK, PS_READY, 500);
@@ -405,7 +438,7 @@ bool LoRaWAN_TLM922S::txRequest (void) {
 }
 
 // tx実行結果
-// 第2プロンプト応答に最大10000ms待つ
+// 第2プロンプト応答に最大 10000ms待つ
 bool LoRaWAN_TLM922S::txResult (void) {
     uint8_t f = false;
     _margin = _gateways = -1;

@@ -1,6 +1,6 @@
 /***************
  *
- * FactoryReseter - TLM922S-P01A factory resetting for Arduino
+ * FactoryReseter - TLM922S-P01A factory resetting tool for Arduino
  *
  * target architectures: Atmel AVR (ATmega 328P, 1284P and other)
  *

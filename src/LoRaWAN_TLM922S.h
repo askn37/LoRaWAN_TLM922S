@@ -15,7 +15,16 @@
 #include <Arduino.h>
 #include "LoRaWAN_TLM922S_Table.h"
 
-//// 継承するシリアルクラスを選択
+//
+// エコーバックスルー先コンソールの指定（HardwareSerial）
+//
+#ifndef LORAWAN_TLM922S_DEBUG
+#define LORAWAN_TLM922S_DEBUG Serial
+#endif
+
+//
+// 継承するシリアルクラスを選択（MultiUART or SoftwareSerial）
+//
 #define LORAWAN_TLM922S_USED_MULTIUART
 // #define LORAWAN_TLM922S_USED_SOFTWARESERIAL
 
@@ -28,10 +37,10 @@
 #else
     #error no defined base class LORAWAN_TLM922S_USED_XXXX
 #endif
-#ifndef LORAWAN_TLM922S_DEBUG
-#define LORAWAN_TLM922S_DEBUG Serial
-#endif
 
+//
+// オプション定数
+//
 #define ECHO_OFF	false
 #define ECHO_ON		true
 #define JOIN_OTAA	false
@@ -41,10 +50,13 @@
 #define TX_UCNF		false
 #define TX_CNF		true
 
+//
+// クラス定義
+//
 class LoRaWAN_TLM922S : public LORAWAN_TLM922S_SERIAL {
 private:
-    String _echoBack;
-    String _rxData;
+    String _echoBack;       // エコーバックバッファヒープ
+    String _rxData;         // Downlinkデータストアヒープ
     int32_t _value;
     uint8_t _current;
     uint8_t _result;
@@ -63,7 +75,7 @@ private:
     uint8_t nextPrompt (uint16_t = 100);
     uint8_t skipPrompt (uint8_t = PS_READY, uint8_t = PS_READY, uint16_t = 100);
     bool runCommand (uint8_t, uint16_t = 1000);
-    bool getBoolCommand (uint8_t, uint16_t = 1000);
+    bool runBoolCommand (uint8_t, uint16_t = 1000);
     bool getStringCommand (uint8_t, uint16_t = 1000);
     uint32_t getValueCommand (uint8_t, uint16_t = 1000);
 
@@ -72,7 +84,7 @@ private:
     uint32_t parseValue (bool = false, uint16_t timeout = 1000);
 
 public:
-    // using LORAWAN_TLM922S_SERIAL::LORAWAN_TLM922S_SERIAL;
+    using LORAWAN_TLM922S_SERIAL::LORAWAN_TLM922S_SERIAL;
     LoRaWAN_TLM922S (uint8_t, uint8_t);
 
     #ifndef LORAWAN_TLM922S_USED_MULTIUART
@@ -86,6 +98,7 @@ public:
     bool reset (void);
     bool sleep (uint16_t = 0);
     bool wakeUp (void);
+    void setBaudRate (long);
     inline bool modSave (void) { return runCommand(EX_MOD_SAVE); }
     inline bool loraSave (void) { return runCommand(EX_LORA_SAVE); }
     inline bool factoryReset (void) { return runCommand(EX_MOD_FACTRY); }
@@ -100,7 +113,7 @@ public:
 
     bool join (bool = JOIN_OTAA);
     bool joinResult (void);
-    inline bool getAdr (void) { return getBoolCommand(EX_LORA_GET_ADR); }
+    inline bool getAdr (void) { return runBoolCommand(EX_LORA_GET_ADR); }
     inline bool setAdr (bool adr = ADR_ON) { return runCommand(adr ? EX_LORA_SET_ADR_ON : EX_LORA_SET_ADR_OFF); }
     inline bool setLinkCheck (void) { return runCommand(EX_LORA_SET_LINK); }
     inline bool tx  (bool confirm, uint8_t fport, char* data) {
@@ -110,6 +123,7 @@ public:
     }
     bool tx (bool, uint8_t);
     inline void txData (char* str) { this->LORAWAN_TLM922S_SERIAL::write(str); }
+    inline void txData (const char* str) { this->LORAWAN_TLM922S_SERIAL::write(str); }
     inline void txData (char* str, int len) { this->LORAWAN_TLM922S_SERIAL::write(str, len); }
     inline void txData (char c) { this->LORAWAN_TLM922S_SERIAL::write(c); };
     inline void txData (uint8_t v) { txData((uint32_t)(v), 2); }
