@@ -106,6 +106,7 @@ public:
     inline bool getVersion (void) { return getStringCommand(EX_MOD_GET_VER); }
     inline bool getDevEUI (void) { return getStringCommand(EX_MOD_GET_DEVEUI); }
     inline bool getDevAddr (void) { return getStringCommand(EX_LORA_GET_DEVADDR); }
+    inline bool getAppsKey (void) { return getStringCommand(EX_LORA_GET_APPSKEY); }
     inline int32_t getUpCount (void) { return getValueCommand(EX_LORA_GET_UPCNT); }
     inline int32_t getDownCount (void) { return getValueCommand(EX_LORA_GET_DWCNT); }
     inline uint8_t getDataRate (void) { return getValueCommand(EX_LORA_GET_DR); }

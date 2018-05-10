@@ -343,6 +343,7 @@ bool LoRaWAN_TLM922S::wakeUp (void) {
     return f;
 }
 
+// 通信ボーレートを変更する
 void LoRaWAN_TLM922S::setBaudRate (long baudrate) {
     if (!getReady()) return false;
     putCommand(EX_MOD_SET_BAUD);
