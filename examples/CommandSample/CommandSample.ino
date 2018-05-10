@@ -254,37 +254,37 @@ void loop (void) {
 
 // リザルトを取得して番号と名前を表示する
 void printResult (void) {
-    uint8_t ps = LoRaWAN.getResult();
+    tlmps_t ps = LoRaWAN.getResult();
     Serial.print(F("=getResult:"));
+    Serial.print(ps, DEC);
     switch (ps) {
-        case PS_NOOP       : Serial.println(F("0:PS_NOOP")); return;
-        case PS_READY      : Serial.println(F("1:PS_READY")); return;
-        case PS_PREFIX     : Serial.println(F("2:PS_PREFIX")); return;
-        case PS_ENDRESET   : Serial.println(F("3:PS_ENDRESET")); return;
-        case PS_MODRESET   : Serial.println(F("4:PS_MODRESET")); return;
-        case PS_DEMODMARG  : Serial.println(F("5:PS_DEMODMARG")); return;
-        case PS_NBGATEWAYS : Serial.println(F("6:PS_NBGATEWAYS")); return;
-        case PS_RX         : Serial.println(F("7:PS_RX")); return;
-        case PS_OK         : Serial.println(F("8:PS_OK")); return;
-        case PS_TXOK       : Serial.println(F("10:PS_TXOK")); return;
-        case PS_ACCEPTED   : Serial.println(F("11:PS_ACCEPTED")); return;
-        case PS_JOINED     : Serial.println(F("12:PS_JOINED")); return;
-        case PS_ADVANCE    : Serial.println(F("13:PS_ADVANCE")); return;
-        case PS_ON         : Serial.println(F("14:PS_ON")); return;
-        case PS_OFF        : Serial.println(F("15:PS_OFF")); return;
-        case PS_INVALID    : Serial.println(F("16:PS_INVALID")); return;
-        case PS_UNKOWN     : Serial.println(F("17:PS_UNKOWN")); return;
-        case PS_ERR        : Serial.println(F("18:PS_ERR")); return;
-        case PS_UNSUCCESS  : Serial.println(F("19:PS_UNSUCCESS")); return;
-        case PS_UNJOINED   : Serial.println(F("20:PS_UNJOINED")); return;
-        case PS_INVDLEN    : Serial.println(F("21:PS_INVDLEN")); return;
-        case PS_KEYNOTINIT : Serial.println(F("22:PS_KEYNOTINIT")); return;
-        case PS_NOFREECH   : Serial.println(F("23:PS_NOFREECH")); return;
-        case PS_BUSY       : Serial.println(F("24:PS_BUSY")); return;
-        case PS_NOTJOINED  : Serial.println(F("25:PS_NOTJOINED")); return;
-        case PS_PASSWORDERR: Serial.println(F("26:PS_PASSWORDERR")); return;
+        case PS_NOOP       : Serial.println(F("PS_NOOP")); return;
+        case PS_READY      : Serial.println(F("PS_READY")); return;
+        case PS_PREFIX     : Serial.println(F("PS_PREFIX")); return;
+        case PS_ENDRESET   : Serial.println(F("PS_ENDRESET")); return;
+        case PS_MODRESET   : Serial.println(F("PS_MODRESET")); return;
+        case PS_DEMODMARG  : Serial.println(F("PS_DEMODMARG")); return;
+        case PS_NBGATEWAYS : Serial.println(F("PS_NBGATEWAYS")); return;
+        case PS_RX         : Serial.println(F("PS_RX")); return;
+        case PS_OK         : Serial.println(F("PS_OK")); return;
+        case PS_TXOK       : Serial.println(F("PS_TXOK")); return;
+        case PS_ACCEPTED   : Serial.println(F("PS_ACCEPTED")); return;
+        case PS_JOINED     : Serial.println(F("PS_JOINED")); return;
+        case PS_ADVANCE    : Serial.println(F("PS_ADVANCE")); return;
+        case PS_ON         : Serial.println(F("PS_ON")); return;
+        case PS_OFF        : Serial.println(F("PS_OFF")); return;
+        case PS_INVALID    : Serial.println(F("PS_INVALID")); return;
+        case PS_UNKOWN     : Serial.println(F("PS_UNKOWN")); return;
+        case PS_ERR        : Serial.println(F("PS_ERR")); return;
+        case PS_UNSUCCESS  : Serial.println(F("PS_UNSUCCESS")); return;
+        case PS_UNJOINED   : Serial.println(F("PS_UNJOINED")); return;
+        case PS_INVDLEN    : Serial.println(F("PS_INVDLEN")); return;
+        case PS_KEYNOTINIT : Serial.println(F("PS_KEYNOTINIT")); return;
+        case PS_NOFREECH   : Serial.println(F("PS_NOFREECH")); return;
+        case PS_BUSY       : Serial.println(F("PS_BUSY")); return;
+        case PS_NOTJOINED  : Serial.println(F("PS_NOTJOINED")); return;
+        case PS_PASSWORDERR: Serial.println(F("PS_PASSWORDERR")); return;
         default:
-            Serial.print(ps, DEC);
             Serial.println(F(":???"));
     }
 }

@@ -1,6 +1,6 @@
 /***************
  *
- * LoRaWAN_TLM922S - Kiwi-tec.com TLM922S-P01A LoRaWAN Module connector for Arduino
+ * LoRaWAN_TLM922S.h - Kiwi-tec.com TLM922S-P01A LoRaWAN Module connector for Arduino
  *
  * target architectures: Atmel AVR (ATmega 328P, 1284P and other)
  *
@@ -136,7 +136,7 @@ public:
     inline bool txRequest(bool c, uint8_t f, char* s) { return tx(c, f, s); }
     bool txResult (void);
 
-    inline uint8_t getResult (void) { return _result; }
+    inline tlmps_t getResult (void) { return (tlmps_t)_result; }
     inline uint32_t getValue (void) { return _value; }
     inline uint8_t isData (void) { return _rxData.length(); }
     inline String getData (void) { return _rxData; }

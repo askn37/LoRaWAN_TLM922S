@@ -1,6 +1,6 @@
 /***************
  *
- * LoRaWAN_TLM922S - Kiwi-tec.com TLM922S-P01A LoRaWAN Module connector for Arduino
+ * LoRaWAN_TLM922S.cpp - Kiwi-tec.com TLM922S-P01A LoRaWAN Module connector for Arduino
  *
  * target architectures: Atmel AVR (ATmega 328P, 1284P and other)
  *
