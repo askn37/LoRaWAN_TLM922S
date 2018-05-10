@@ -48,6 +48,77 @@ TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装であ
 
 ## とっかかり
 
+OTAAで JOINし、unconfirmdモードで 32bitのデータ送信を約10秒間隔で実行する、
+単純な例を示す。
+
+```c
+#include <Arduino.h>
+#include <LoRaWAN_TLM922S.h>
+
+#define TX_PIN	12	// D12 O to I TLM_MISO/RX(12)
+#define RX_PIN	11	// D11 I to O TLM_MOSI/TX(11)
+
+LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
+
+void setup (void) {
+    while (!Serial);
+    Serial.begin(9600);
+
+    LoRaWAN.begin(9600);
+    while (!LoRaWAN.getReady())     delay(1000);
+    while (!LoRaWAN.factoryReset()) delay(1000);
+
+    while (!(LoRaWAN.join(JOIN_OTAA) &&
+             LoRaWAN.joinResult())) delay(1000);
+}
+
+void loop (void) {
+    uint32_t ms = millis();		// or user senser data
+
+    if (LoRaWAN.tx(TX_UCNF, 1)) {
+        LoRaWAN.txData(ms);
+        if (LoRaWAN.txRequest() &&
+            LoRaWAN.txResult()) {
+            Serial.println(F("tx_ok"));
+        }
+    }
+    delay(10000);
+}
+```
+
+getReady() は LoRaWANモジュールがコマンドを受け付けられる状態になるのを確認するときに使う。
+
+join() の前に factoryReset() を行っているのは必ずしも必須ではないが、
+以前の通信パラメータの残滓をすべて破棄して
+次の join() 実行の確実を期すためである。
+join() は一種の認証手続きであり、サーバとのセッションを確立する。
+
+join() には JOIN_OTAA または JOIN_ABP いずれかのモード指定を指示する。
+OTAAはセッション確立時にのみ一意の暗号化キー交換を行う軽量通信モード、
+ABPは txRequest() 実行毎に異なるスクランブルを行う高暗号強度モードである。
+いずれが使えるかはゲートウェイ（サーバ）側の通信設定に依存する。
+（そして多くは特定のデバイスに付き、どちらかしか受け付けないだろう）
+
+joinおよび tx送信コマンドは、いずれも2段階の応答を返す。
+すなわちコマンドの構文チェックなどを行う第1プロンプト応答と、
+実際に電波の送信／受信に成功したことを示す第2プロンプト応答である。
+それぞれの間には数秒の無応答時間があるため（その間に CPUは他のことが出来るので）
+joinResult() と txResult() はこの第2プロンプトが返ってくるのを待つために使う。
+
+tx送信コマンドは、ここでは tx() txData() txRequest() の三組メソッドで使用している。
+
+tx() メソッドは TX_UCNFまたは TX_CNFのモード指定と、送信ポート番号を指示する。
+送信ポート番号は 0および 250前後以上の特別な予約番号があり、それらは指定ができない。
+それ以外は続くペイロードデータと共にサーバ側で読み取ることができ、データ内容の処理分別に自由に使用できる。
+
+txData() メソッドは送信ペイロードを準備する。
+ペイロードは最終的にはバイナリデータに組み立てられるため、もろもろのデータ型を区別して受け付けるように設計されている。
+ペイロードサイズは送受信のために選択された周波数変調設定（データレート）によって上限が規定されている。
+
+txRequest() メソッドはそれらの情報を取りまとめて、
+LoRaWANモジュールに渡して実際の送信コマンドを発行し、第1プロンプトを受け取る。
+送信実行結果である第2プロンプトは、txResult() メソッドで受け取られる。
+
 # リファレンス
 
 ここでは Arduinoスタイルではなく、型を含めた C/C++スタイルで各メソッドを記述する。

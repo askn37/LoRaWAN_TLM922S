@@ -1,6 +1,6 @@
 /***************
  *
- * OTAA_Sample - TLM922S-P01A join OTAA sample for Arduino
+ * CommandSample - TLM922S-P01A command sample for Arduino
  *
  * target architectures: Atmel AVR (ATmega 328P, 1284P and other)
  *
@@ -28,6 +28,8 @@ void setup (void) {
     while (!Serial);
     Serial.begin(CONSOLE_BAUD);
     Serial.println(F("Startup"));
+    Serial.print(F("FREQ_CPU:"));
+    Serial.println(F_CPU);
 
     // LoRaWANモジュールに接続し
     // エコーバック表示を有効化
@@ -38,7 +40,7 @@ void setup (void) {
     pinMode(WAKE_PIN, OUTPUT);
     digitalWrite(WAKE_PIN, HIGH);
 
-    // 準備ができるのを待つ
+    // デバイスの準備ができるのを待つ
     while (!LoRaWAN.getReady()) {
         Serial.println(F("=getReady:0"));
         delay(1000);
@@ -84,7 +86,7 @@ void setup (void) {
         }
     }
 
-    // 現在のDevAddr文字列取得
+    // 現在の（以前のjoinの）DevAddr文字列取得
     // 成功すれば真
     f = LoRaWAN.getDevAddr();
     Serial.print(F("=getDevAddr:")); Serial.println(f);
@@ -94,7 +96,7 @@ void setup (void) {
         Serial.println(']');
     }
 
-    // joinの前に、工場出荷時リセット
+    // joinの前に、工場出荷時リセットを試す
     // 成功すれば真
     f = LoRaWAN.factoryReset();
     Serial.print(F("=factoryReset:")); Serial.println(f);
@@ -121,20 +123,7 @@ void setup (void) {
         printResult();
     } while (!f);
 
-    // ADRモード設定を調べる
-    // onなら真
-    f = LoRaWAN.getAdr();
-    Serial.print(F("=getAdr:")); Serial.println(f);
-    printResult();
-    if (!f) {
-        // ADRをオンにする
-        // 成功なら真
-        f = LoRaWAN.setAdr(ADR_ON);
-        Serial.print(F("=setAdr:")); Serial.println(f);
-        printResult();
-    }
-
-    // join後のDevAddr文字列取得（成功すれば変わっている）
+    // join後のDevAddr文字列取得（成功すれば以前と変わっている）
     // 成功すれば真
     f = LoRaWAN.getDevAddr();
     Serial.print(F("=getDevAddr:")); Serial.println(f);
@@ -149,10 +138,18 @@ void setup (void) {
     f = LoRaWAN.setDataRate(3);
     Serial.print(F("=setDataRate:")); Serial.println(f);
 
-    // DR値を取得する
-    // 成功なら真
-    uint8_t v = LoRaWAN.getDataRate();
-    Serial.print(F("=getDataRate:")); Serial.println(v);
+    // ADRモード設定を調べる
+    // onなら真
+    f = LoRaWAN.getAdr();
+    Serial.print(F("=getAdr:")); Serial.println(f);
+    printResult();
+    if (!f) {
+        // ADRをオンにする
+        // 成功なら真
+        f = LoRaWAN.setAdr(ADR_ON);
+        Serial.print(F("=setAdr:")); Serial.println(f);
+        printResult();
+    }
 
     // lorawan設定を保存する（DR値など）
     // 成功なら真
@@ -166,20 +163,22 @@ void setup (void) {
 }
 
 void loop (void) {
+    uint32_t v;
     bool f;
 
-    // // リンクチェックを要求する
-    // // 成功なら真
-    // f = LoRaWAN.setLinkCheck();
-    // Serial.print(F("=setLinkCheck:")); Serial.println(f);
+    // ADRを有効化するため
+    // リンクチェックを要求する
+    // 成功なら真
+    f = LoRaWAN.setLinkCheck();
+    Serial.print(F("=setLinkCheck:")); Serial.println(f);
 
     // txコマンドを confirmモードで準備する
     // 成功すれば真
     if (!LoRaWAN.tx(TX_CNF, 1)) { return; }
 
     // 送信データを準備する
-    LoRaWAN.txData("cafe");     // これは LoRaWAN.write("cafe") でも同じ
-    LoRaWAN.txData(micros());   // uint32_t型をHEX8桁で準備
+    LoRaWAN.txData("cafe");     // HEXDATA直書き これは LoRaWAN.write("cafe") と同じ
+    LoRaWAN.txData(micros());   // uint32_t型をHEX 8桁で準備
 
     // 送信を実行
     // 第1プロンプト結果が Okなら真
@@ -211,6 +210,24 @@ void loop (void) {
     }
     printResult();
 
+    // 現在の DR値を取得する
+    // 成功なら真
+    v = LoRaWAN.getDataRate();
+    Serial.print(F("=getDataRate:")); Serial.println(v);
+
+    // 現在の upCount値を取得する
+    // 成功なら真
+    // joinで 1にリセット、以後txする度に増加
+    // ただし no_freechだった場合は増加しない
+    v = LoRaWAN.getUpCount();
+    Serial.print(F("=getUpCount:")); Serial.println(v);
+
+    // 現在の downCount値を取得する
+    // 成功なら真
+    // joinで 0にリセット、以後ACK受信またはリンクチェック返答がある度に増加
+    v = LoRaWAN.getDownCount();
+    Serial.print(F("=getDownCount:")); Serial.println(v);
+
     // Sleepピンを下げて、スリープ可能にする
     digitalWrite(WAKE_PIN, LOW);
 
@@ -223,16 +240,16 @@ void loop (void) {
     // 任意のキー入力がコンソールにあるまで待機
     Serial.println();
     Serial.println(F("[Push any key wait]"));
-    while(!Serial.available());
     while(Serial.available()) Serial.read();
+    while(!Serial.available());
 
     // Wakeupピンを上げてスリープ解除
     // 成功なら真
     digitalWrite(WAKE_PIN, HIGH);
     f = LoRaWAN.wakeUp();
-    Serial.print(F("=wakeUp:")); Serial.println(f); 
+    Serial.print(F("=wakeUp:")); Serial.println(f);
 
-    // 以後繰り返し  
+    // 以後繰り返し
 }
 
 // リザルトを取得して番号と名前を表示する
