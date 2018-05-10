@@ -257,6 +257,7 @@ void printResult (void) {
     tlmps_t ps = LoRaWAN.getResult();
     Serial.print(F("=getResult:"));
     Serial.print(ps, DEC);
+    Serial.write(':');
     switch (ps) {
         case PS_NOOP       : Serial.println(F("PS_NOOP")); return;
         case PS_READY      : Serial.println(F("PS_READY")); return;
@@ -270,7 +271,6 @@ void printResult (void) {
         case PS_TXOK       : Serial.println(F("PS_TXOK")); return;
         case PS_ACCEPTED   : Serial.println(F("PS_ACCEPTED")); return;
         case PS_JOINED     : Serial.println(F("PS_JOINED")); return;
-        case PS_ADVANCE    : Serial.println(F("PS_ADVANCE")); return;
         case PS_ON         : Serial.println(F("PS_ON")); return;
         case PS_OFF        : Serial.println(F("PS_OFF")); return;
         case PS_INVALID    : Serial.println(F("PS_INVALID")); return;
@@ -283,7 +283,6 @@ void printResult (void) {
         case PS_NOFREECH   : Serial.println(F("PS_NOFREECH")); return;
         case PS_BUSY       : Serial.println(F("PS_BUSY")); return;
         case PS_NOTJOINED  : Serial.println(F("PS_NOTJOINED")); return;
-        case PS_PASSWORDERR: Serial.println(F("PS_PASSWORDERR")); return;
         default:
             Serial.println(F(":???"));
     }
