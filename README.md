@@ -525,6 +525,8 @@ if (LoRaWAN.modSave()) Serial.println("mod save ok");
 
 ## ラジオモジュールメソッド
 
+TLM922Sの lorawan で始まるコマンド群を操作する。
+
 ### bool setDataRate (uint8_t DATARATE)
 
 TLM922Sに DR値を設定する。
@@ -558,7 +560,7 @@ LoRaWANでは 1回に送れる電波発信時間に制約があるため、
 Region AS923 では日本の電波法違反規定により、上限と設定が以下のように定まる。デフォルト値は DR2である。
 
 |番号|送信出力|Dwell=0|Dwell=1|変調設定|ビットレート|
-|--:|--:|--:|--:|---|---|---|
+|---:|---:|---:|---:|---|---|---|
 |DR0|13 dBm|51 byte|0 byte|SF12 BW125K|250 bps|
 |DR1|11 dBm|51 byte|0 byte|SF11 BW125K|440 bps|
 |DR2|9 dBm|51 byte|11 byte|SF10 BW125K|980 bps|
