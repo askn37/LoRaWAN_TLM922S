@@ -87,37 +87,46 @@ public:
     using LORAWAN_TLM922S_SERIAL::LORAWAN_TLM922S_SERIAL;
     LoRaWAN_TLM922S (uint8_t, uint8_t);
 
-    #ifndef LORAWAN_TLM922S_USED_MULTIUART
-	using LORAWAN_TLM922S_SERIAL::write;
-	size_t write (const uint8_t c);
-    #endif
+    // command interface method
 
-    bool getReady (void);
     void setEchoThrough (bool = false);
+    inline tlmps_t getResult (void) { return (tlmps_t)_result; }
+    bool getReady (void);
+    inline int32_t getValue (void) { return _value; }
+    inline String getData (void) { return _rxData; }
+    inline uint8_t isData (void) { return _rxData.length(); }
 
+    // controler module method
+
+    inline bool factoryReset (void) { return runCommand(EX_MOD_FACTRY); }
     bool reset (void);
+    inline bool getVersion (void) { return getStringCommand(EX_MOD_GET_VER); }
+    inline bool getDevEUI (void) { return getStringCommand(EX_MOD_GET_DEVEUI); }
+    inline bool getAppsKey (void) { return getStringCommand(EX_LORA_GET_APPSKEY); }
     bool sleep (uint16_t = 0);
     bool wakeUp (void);
     void setBaudRate (long);
-    inline bool modSave (void) { return runCommand(EX_MOD_SAVE); }
-    inline bool loraSave (void) { return runCommand(EX_LORA_SAVE); }
-    inline bool factoryReset (void) { return runCommand(EX_MOD_FACTRY); }
     inline bool setEcho (bool echo = ECHO_ON) { return runCommand(echo ? EX_MOD_SET_ECHO_ON : EX_MOD_SET_ECHO_OFF); }
-    inline bool getVersion (void) { return getStringCommand(EX_MOD_GET_VER); }
-    inline bool getDevEUI (void) { return getStringCommand(EX_MOD_GET_DEVEUI); }
-    inline bool getDevAddr (void) { return getStringCommand(EX_LORA_GET_DEVADDR); }
-    inline bool getAppsKey (void) { return getStringCommand(EX_LORA_GET_APPSKEY); }
-    inline int32_t getUpCount (void) { return getValueCommand(EX_LORA_GET_UPCNT); }
-    inline int32_t getDownCount (void) { return getValueCommand(EX_LORA_GET_DWCNT); }
-    inline uint8_t getDataRate (void) { return getValueCommand(EX_LORA_GET_DR); }
+    inline bool modSave (void) { return runCommand(EX_MOD_SAVE); }
+
+    // radio module method
+
+    inline int8_t getDataRate (void) { return getValueCommand(EX_LORA_GET_DR); }
     bool setDataRate (uint8_t);
+    int16_t getMaxPayloadSize (int8_t);
+    inline bool getAdr (void) { return runBoolCommand(EX_LORA_GET_ADR); }
+    inline bool setAdr (bool adr = ADR_ON) { return runCommand(adr ? EX_LORA_SET_ADR_ON : EX_LORA_SET_ADR_OFF); }
+    inline bool loraSave (void) { return runCommand(EX_LORA_SAVE); }
 
     bool join (bool = JOIN_OTAA);
     bool joinResult (void);
-    inline bool getAdr (void) { return runBoolCommand(EX_LORA_GET_ADR); }
-    inline bool setAdr (bool adr = ADR_ON) { return runCommand(adr ? EX_LORA_SET_ADR_ON : EX_LORA_SET_ADR_OFF); }
+
+    inline bool getDevAddr (void) { return getStringCommand(EX_LORA_GET_DEVADDR); }
+    inline uint32_t getUpCount (void) { return getValueCommand(EX_LORA_GET_UPCNT); }
+    inline uint32_t getDownCount (void) { return getValueCommand(EX_LORA_GET_DWCNT); }
+    
     inline bool setLinkCheck (void) { return runCommand(EX_LORA_SET_LINK); }
-    inline bool tx  (bool confirm, uint8_t fport, char* data) {
+    inline bool tx (bool confirm, uint8_t fport, char* data) {
         tx(confirm, fport);
         txData(data);
         return txRequest();
@@ -137,14 +146,15 @@ public:
     inline bool txRequest(bool c, uint8_t f, char* s) { return tx(c, f, s); }
     bool txResult (void);
 
-    inline tlmps_t getResult (void) { return (tlmps_t)_result; }
-    inline uint32_t getValue (void) { return _value; }
-    inline uint8_t isData (void) { return _rxData.length(); }
-    inline String getData (void) { return _rxData; }
     inline bool isLinkCheck (void) { return (_margin >= 0 && _gateways > 0); }
     inline int8_t getMargin (void) { return _margin; }
     inline int8_t getGateways (void) { return _gateways; }
     inline int8_t getRxPort (void) { return _rxPort; }
+
+    #ifndef LORAWAN_TLM922S_USED_MULTIUART
+	using LORAWAN_TLM922S_SERIAL::write;
+	size_t write (const uint8_t c);
+    #endif
 
     static void echoback (LORAWAN_TLM922S_SERIAL*);
     static void echobackDrop (LORAWAN_TLM922S_SERIAL*);

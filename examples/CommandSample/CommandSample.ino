@@ -16,13 +16,29 @@
 #define RX_PIN		11			// D11 I to O TLM_MOSI/TX(11)
 #define WAKE_PIN	7			// D7  O to I TLM_INT2/WakeUp/~Sleep(7)
 
+#define SET_DR      2
+#define SET_CNF     TX_CNF
+
 #define LORAWAN_BAUD	9600
 #define CONSOLE_BAUD	9600
 
+// ピンレベル変化汎用割込
+// このコードは SoftwareSerial とは共存できない
+volatile bool wakeup = false;
+ISR(PCINT0_vect) {              // handle pin change interrupt for D8 to D13 here
+    wakeup = true;
+}
+
+// LoRaWANオブジェクト作成
 LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
 
 void setup (void) {
     bool f;
+
+    // RX_PINのレベル変化割込を有効にして、スリープ終了を検出可能にする
+    *digitalPinToPCMSK(RX_PIN) |= _BV(digitalPinToPCMSKbit(RX_PIN));
+    PCIFR |= _BV(digitalPinToPCICRbit(RX_PIN));
+    PCICR |= _BV(digitalPinToPCICRbit(RX_PIN));
 
     // コンソール出力を有効化
     while (!Serial);
@@ -42,14 +58,17 @@ void setup (void) {
 
     // デバイスの準備ができるのを待つ
     while (!LoRaWAN.getReady()) {
+        printResult();
         Serial.println(F("=getReady:0"));
         delay(1000);
     }
+    printResult();
 
     // リセットコマンドを試す
     // 成功すれば真
     f = LoRaWAN.reset();
     Serial.print(F("=reset:")); Serial.println(f);
+    printResult();
 
     // // ボーレート設定を試す
     // // 結果は得られないが
@@ -90,6 +109,7 @@ void setup (void) {
     // 成功すれば真
     f = LoRaWAN.getDevAddr();
     Serial.print(F("=getDevAddr:")); Serial.println(f);
+    printResult();
     if (LoRaWAN.isData()) {
         Serial.print(F("=getData:["));
         Serial.print(LoRaWAN.getData());
@@ -100,11 +120,13 @@ void setup (void) {
     // 成功すれば真
     f = LoRaWAN.factoryReset();
     Serial.print(F("=factoryReset:")); Serial.println(f);
+    printResult();
 
     // エコーバック有効化（ON=工場出荷時デフォルト）
     // 成功すれば真
     f = LoRaWAN.setEcho(ECHO_ON);
     Serial.print(F("=setEcho:")); Serial.println(f);
+    printResult();
 
     // joinが成功するまでループ
     do {
@@ -127,6 +149,7 @@ void setup (void) {
     // 成功すれば真
     f = LoRaWAN.getDevAddr();
     Serial.print(F("=getDevAddr:")); Serial.println(f);
+    printResult();
     if (LoRaWAN.isData()) {
         Serial.print(F("=getData:["));
         Serial.print(LoRaWAN.getData());
@@ -135,8 +158,9 @@ void setup (void) {
 
     // DR値を設定する
     // 成功なら真
-    f = LoRaWAN.setDataRate(3);
+    f = LoRaWAN.setDataRate(SET_DR);
     Serial.print(F("=setDataRate:")); Serial.println(f);
+    printResult();
 
     // ADRモード設定を調べる
     // onなら真
@@ -155,11 +179,13 @@ void setup (void) {
     // 成功なら真
     f = LoRaWAN.loraSave();
     Serial.print(F("=loraSave:")); Serial.println(f);
+    printResult();
 
     // module設定を保存する（baudrateなど）
     // 成功なら真
     f = LoRaWAN.modSave();
     Serial.print(F("=modSave:")); Serial.println(f);
+    printResult();
 }
 
 void loop (void) {
@@ -171,10 +197,13 @@ void loop (void) {
     // 成功なら真
     f = LoRaWAN.setLinkCheck();
     Serial.print(F("=setLinkCheck:")); Serial.println(f);
+    printResult();
 
-    // txコマンドを confirmモードで準備する
+    // txコマンドを準備する
     // 成功すれば真
-    if (!LoRaWAN.tx(TX_CNF, 1)) { return; }
+    f = LoRaWAN.tx(SET_CNF, 1);
+    Serial.print(F("=tx:")); Serial.println(f);
+    printResult();
 
     // 送信データを準備する
     LoRaWAN.txData("cafe");     // HEXDATA直書き これは LoRaWAN.write("cafe") と同じ
@@ -184,11 +213,13 @@ void loop (void) {
     // 第1プロンプト結果が Okなら真
     f = LoRaWAN.txRequest();
     Serial.print(F("=tx:")); Serial.println(f);
+    printResult();
     if (f) {
         // 第2プロンプトを待つ
         // 結果が tx_okなら真
         f = LoRaWAN.txResult();
         Serial.print(F("=txResult:")); Serial.println(f);
+        printResult();
 
         // リンクチェックが得られたなら真（ucnfでもダウンリンク発生）
         Serial.print(F("=isLinkCheck:")); Serial.println(LoRaWAN.isLinkCheck());
@@ -208,12 +239,12 @@ void loop (void) {
             Serial.println(']');
         }
     }
-    printResult();
 
     // 現在の DR値を取得する
     // 成功なら真
     v = LoRaWAN.getDataRate();
     Serial.print(F("=getDataRate:")); Serial.println(v);
+    printResult();
 
     // 現在の upCount値を取得する
     // 成功なら真
@@ -221,33 +252,46 @@ void loop (void) {
     // ただし no_freechだった場合は増加しない
     v = LoRaWAN.getUpCount();
     Serial.print(F("=getUpCount:")); Serial.println(v);
+    printResult();
 
     // 現在の downCount値を取得する
     // 成功なら真
     // joinで 0にリセット、以後ACK受信またはリンクチェック返答がある度に増加
     v = LoRaWAN.getDownCount();
     Serial.print(F("=getDownCount:")); Serial.println(v);
+    printResult();
 
     // Sleepピンを下げて、スリープ可能にする
     digitalWrite(WAKE_PIN, LOW);
 
-    // 無制限ディープスリープを実行
+    // 60秒ディープスリープを実行
     // 成功なら真
-    f = LoRaWAN.sleep(0);
+    f = LoRaWAN.sleep(60);
     Serial.println();
     Serial.print(F("=sleep:")); Serial.println(f);
+    // printResult();   // no prompt
 
     // 任意のキー入力がコンソールにあるまで待機
     Serial.println();
-    Serial.println(F("[Push any key wait]"));
+    Serial.println(F("[Push any key or 60sec after wakeup]"));
+
+    // 現在までのキー入力を読み捨てる
     while(Serial.available()) Serial.read();
-    while(!Serial.available());
+
+    // 割り込みフラグを初期化
+    wakeup = false;
+
+    // 新たなキー入力があるか、割り込みがあるまで動作停止
+    while(!Serial.available()) {
+        if (wakeup) break;
+    }
 
     // Wakeupピンを上げてスリープ解除
     // 成功なら真
     digitalWrite(WAKE_PIN, HIGH);
     f = LoRaWAN.wakeUp();
     Serial.print(F("=wakeUp:")); Serial.println(f);
+    printResult();
 
     // 以後繰り返し
 }
@@ -283,8 +327,7 @@ void printResult (void) {
         case PS_NOFREECH   : Serial.println(F("PS_NOFREECH")); return;
         case PS_BUSY       : Serial.println(F("PS_BUSY")); return;
         case PS_NOTJOINED  : Serial.println(F("PS_NOTJOINED")); return;
-        default:
-            Serial.println(F(":???"));
+        default            : Serial.println(F("???"));
     }
 }
 

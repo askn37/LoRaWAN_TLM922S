@@ -368,6 +368,15 @@ bool LoRaWAN_TLM922S::setDataRate (uint8_t datarate) {
     return f;
 }
 
+// DR値を指定して送信可能なペイロードサイズを取得する
+int16_t LoRaWAN_TLM922S::getMaxPayloadSize (int8_t dr) {
+    if (!getReady()) return false;
+    putCommand(EX_LOLA_GET_MAX_PAY);
+    this->LORAWAN_TLM922S_SERIAL::print(dr, DEC);
+    this->LORAWAN_TLM922S_SERIAL::write('\r');
+    return parseValue(false, 1000);
+}
+
 // join実行
 // 第1プロンプト応答に 500ms待つ
 bool LoRaWAN_TLM922S::join (bool abp) {
