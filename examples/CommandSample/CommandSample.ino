@@ -17,7 +17,8 @@
 #define WAKE_PIN	7			// D7  O to I TLM_INT2/WakeUp/~Sleep(7)
 
 #define SET_DR      2
-#define SET_CNF     TX_CNF
+#define SET_FPORT   1
+#define SET_CNF     TX_UCNF
 
 #define LORAWAN_BAUD	9600
 #define CONSOLE_BAUD	9600
@@ -201,7 +202,7 @@ void loop (void) {
 
     // txコマンドを準備する
     // 成功すれば真
-    f = LoRaWAN.tx(SET_CNF, 1);
+    f = LoRaWAN.tx(SET_CNF, SET_FPORT);
     Serial.print(F("=tx:")); Serial.println(f);
     printResult();
 

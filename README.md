@@ -7,7 +7,7 @@ Kiwi Technology TLM922S-P01A LoRaWAN Module シリーズのための実装（for
 本Arduino用ライブラリは Kiwi Technology社の製造する
 TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装である。
 
-この TLM922S-P01A LoRaWAN Module の基本操作は、ターミナル対話型になっている。
+この TLM922S モジュールの基本操作は、ターミナル対話型になっている。
 このため PCに直結して試しに人間が直接読み書きするにはわかりやすいのだが、
 大量の文字列解析処理を伴うので ATコマンド実装のように自動処理化するのは難しい。
 ましてや CPU速度もメモリ量も制約の多い Arduino / 8bit AVR ではかくもいわんやである。
@@ -28,14 +28,9 @@ TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装であ
 ただし互換機によっては 3.3V出力電力が要求に満たず（純正 UNO R3が 150mAに対し、50mA以下の物がある）正常動作を害する。
 安定して運用するには 150mA以上の定電圧レギュレータと、33uF以上の平滑コンデンサを必要とする。
 
-なお TLM922S は ClassB ダウンリンクに準拠してはいるが、本ライブラリは ClassAのみの対応となる。
+# LoRaWAN
 
-SenseWay の製品は、ClassCの Rx2-Rx受信フローに対応していないと思われる。
-（有効化コマンドがユーザに解放されていない）
-
-# LoRaWANについて
-
-LoRaWAN は前提として半二重ハンドシェイク通信方式をとる。
+LoRaWAN はアプリケーションレイヤーから見ると、半二重ハンドシェイク通信方式をとる。
 まず事前に joinコマンドで LoRaWANゲートウェイとのセッションを宣言したあとは、
 txコマンドで指定のポート番号にペイロードデータをアップリンクするのを適宜繰り返す。
 LoRaWANゲートウェイはアップリンクを受け取ると、
@@ -44,23 +39,26 @@ LoRaWANゲートウェイはアップリンクを受け取ると、
 さらに LoRaWANデバイス向けのダウンリンクペイロードをキューに保持しているならば
 それを LoRaWANデバイスへダウンリンクする。
 
-アップリンクとダウンリンクは共に同じ周波数チャンネルを使用するのが特徴的で、
+アップリンクとダウンリンクは共に同じ周波数チャンネルを使用できるのが特徴的で、
 Bluetooth/WiFi/3G/LTE等はいずれもアップ・ダウンに
 別のチャンネルを使用することで全二重通信を実現しているのとは対照的である。
 LoRaWANの通信方式はトランシーバーや、外惑星探査機のそれに近い。
 さらにアップ・ダウン両パケットとも、相手に必ず届くことを期待も保証もしておらず
 これはインターネットにおけるUDP方式と照応するものだ。
-電波帯域の活用も QoSに当たるものがなく、ベストエフォートのみとなる。
 
-LoRaWAN はあえてこの方式を採用しており、
-ペイロードデータ量も小さく制限し、
-かつエラー訂正を強化しつつビットレートをごく低く抑えることで、
+LoRaWAN はこの方式を採ることとペイロードデータ量も小さく制限し、
+かつビットレートを下げるざるを得ないもののスプレッド拡散によるノイズ耐性に重きを置き、
 乾電池駆動による数mW/hの低送信電力でありながら、
 直線見通しと受信側アンテナの利得次第では 100kmにも達する超遠距離通信を可能にしている。
 これにより単一基地局（ゲートウェイ）で
 数千から数万デバイスのアップリンクを処理することも難しくはない。
 つまりわずかなデータを間欠的に短時間送信するだけの廉価なセンサーデバイスを大量に配布し、
 それを集約収集・分析する用途に特化している。
+
+なお TLM922S は ClassB/ClassC および P2P（ノード間ピアtoピア）にも準拠してはいるが、
+本ライブラリは ClassA（エンドノードプッシュ）のみの対応となる。
+ClassA はエンドノードからだけがハンドシェイクを始めることができると定められ、
+ネットワーク側から能動的にスタートすることはできない。
 
 # Arduino IDE への導入
 
@@ -92,22 +90,24 @@ void setup (void) {
     Serial.begin(9600);
 
     LoRaWAN.begin(9600);
-    while (!LoRaWAN.getReady())     delay(1000);
-    while (!LoRaWAN.factoryReset()) delay(1000);
+    while (! LoRaWAN.getReady()     ) delay(1000);
+    while (! LoRaWAN.factoryReset() ) delay(1000);
 
-    while (!(LoRaWAN.join(JOIN_OTAA) &&
-             LoRaWAN.joinResult())) delay(1000);
+    while (!( LoRaWAN.join(JOIN_OTAA) &&
+              LoRaWAN.joinResult() )) delay(1000);
+
+    Serial.println(F("join accepted"));
 }
 
 void loop (void) {
     uint32_t ms = millis();		// or user senser data
 
-    if (LoRaWAN.tx(TX_UCNF, 1)) {
-        LoRaWAN.txData(ms);
-        if (LoRaWAN.txRequest() &&
-            LoRaWAN.txResult()) {
-            Serial.println(F("tx_ok"));
-        }
+    if ( LoRaWAN.tx(TX_UCNF, 1) &&
+         LoRaWAN.txData(ms)     &&
+         LoRaWAN.txRequest()    &&
+         LoRaWAN.txResult()     )
+    {
+        Serial.println(F("tx_ok"));
     }
     delay(10000);
 }
@@ -134,7 +134,7 @@ tx送信コマンドは、さらに tx() txData() txRequest() の三つ組のメ
 
 ## コンストラクタ
 
-### LoRaWAN_TLM922S::LoRaWAN_TLM922S (uint8\_t RX\_PIN, uint8\_t TX\_PIN)
+### LoRaWAN_TLM922S (uint8\_t RX\_PIN, uint8\_t TX\_PIN)
 
 クラスオブジェクト生成にはこのコンストラクタを使用する。
 受信ピン、送信ピンの指定は必須である。
@@ -154,7 +154,7 @@ auto LoRaWAN = new LoRaWAN_TLM922S(RX_PIN, TX_PIN);
 LoRaWAN->begin(9600);
 ```
 
-本クラスは、規定値では MultiUART クラスを継承している。
+本クラスは、規定値では [MultiUART](https://github.com/askn37/MultiUART) クラスを継承している。
 これを SoftwareSerial に変えるには、
 LoRaWAN_TLM922S.h ヘッダファイル内の以下の定義を変更する。
 
@@ -189,7 +189,7 @@ LoRaWAN.begin(9600);
 
 工場出荷時初期値、および推奨値は 9600 である。
 
-### void setEchoThrough (bool ECHO_MODE)
+### void setEchoThrough (bool ECHO\_MODE)
 
 TLM922Sモジュールからエコーバックキャラクタが送られてきた場合に、
 それをコンソールに転送するか、破棄するかを設定する。
@@ -267,10 +267,10 @@ TLM922S の UARTは、改行区切りが "\n\r" になっていることには�
 PS_MODRESET は部分文字列に PS_READY と PS_ENDRESET の両方を含んでいる特殊な応答である。
 状況によっては正常な解釈はできない。
 
-PS_RX は ClassA/ClassC のダウンリンクでは PS_TXOKとセットで現れるが、
-ClassBのダウンリンクで発生した場合、
-あらゆる局面で UART通信に割り込んでくる可能性がある。
-検証が不完全のため、本ライブラリでは現状 ClassBは対応外とする。
+PS_RX は ClassA のダウンリンクでは PS_TXOKと常にセットで現れるが、
+ClassB/ClassC ダウンリンクが発生した場合、
+あらゆる局面で UART通信に割り込んでくる可能性（いつ受信が発生するか不定）がある。
+検証が充分ではないため、本ライブラリでは現状 ClassB/ClassC は対応外とする。
 
 ### bool getReady (void)
 
@@ -279,30 +279,6 @@ TLM922Sがコマンド入力受付状態にあるかを調べ、可能なら真�
 
 ```c
 while (!LoRaWAN.getReady());    // PS_READY
-```
-
-### int32_t getValue (void)
-
-TLM922Sから取得した最後の数値データを返す。
-取得に失敗していると -1 を返す。
-
-```c
-int32_t valueInt = LoRaWAN.getValue();
-```
-
-### uint8_t isData (void)
-
-TLM922Sから文字列データが取得されているを調べる。
-返されるのは保持しているキャラクタ数である。（最大値 242）
-
-### String getData (void)
-
-TLM922Sから取得した文字列データを String型で返す。
-
-```c
-if (LoRaWAN.isData()) {
-    String resultData = LoRaWAN.getData();
-}
 ```
 
 ## コントローラモジュールメソッド
@@ -376,7 +352,7 @@ if (LoRaWAN.getAppsKey() &&
 AppsKeyは、ABPモードで txするために必須のデバイス固有鍵である。
 同じ値をゲートウェイが事前に知らなければ、LoRaWAN通信は開始できない。
 
-### bool sleep (uint16_t SECONDS)
+### bool sleep (uint16\_t SECONDS)
 
 TLM922Sをディープスリープモードにする。
 スリープ時間には 1～65535秒と、0==無制限が指定できる。
@@ -426,13 +402,18 @@ if (LoRaWAN.sleep(10)) {
 #define RX_PIN	    11	// D11 I to O TLM_MOSI/TX(11)
 #define WAKE_PIN    7	// D7  O to I TLM_INT2/WakeUp/~Sleep(7)
 
-// Arduino UNO の D8～D13ピンに対応するピン変化群割込ハンドラ
+// 割込フラグ
 volatile bool wakeup = false;
+
+// Arduino の D8～D13ピンに対応するピン変化群割込ハンドラ
+// PCINT0_vect == ATmega328P (UNO, Pro Mini), ATmega32U4 (Leonardo, Micro)
 ISR(PCINT0_vect) {
     wakeup = true;
 }
+// PCINT1_vect == ATmega1284P (Boubino)
+ISR(PCINT1_vect, ISR_ALIASOF(PCINT0_vect));
 
-// D7 のピン変化群割込を有効にする
+// D11 のピン変化群割込を有効にする
 *digitalPinToPCMSK(RX_PIN) |= _BV(digitalPinToPCMSKbit(RX_PIN));
 PCIFR |= _BV(digitalPinToPCICRbit(RX_PIN));
 PCICR |= _BV(digitalPinToPCICRbit(RX_PIN));
@@ -495,7 +476,7 @@ while (!LoRaWAN.getReady());    // PS_READY
 このため規定値の 9600bpsから変更しないほうがトラブルになりにくい
 （これでも1～2％のスキューが生じている）
 
-### bool setEcho (bool ECHO_MODE)
+### bool setEcho (bool ECHO\_MODE)
 
 TLM922Sのエコーバック応答を設定する。
 規定値は ECHO_ON である。
@@ -527,7 +508,7 @@ if (LoRaWAN.modSave()) Serial.println("mod save ok");
 
 TLM922Sの lorawan で始まるコマンド群を操作する。
 
-### bool setDataRate (uint8_t DATARATE)
+### bool setDataRate (uint8\_t DATARATE)
 
 TLM922Sに DR値を設定する。
 成功すると真を返す（==PS_OK）
@@ -542,7 +523,7 @@ TLM922Sから現在設定されている DR値を取得する。
 返値は 0から 6の整数である。
 取得に失敗すると -1 が返る。
 
-### int16_t getMaxPayloadSize (int8_t DATARATE)
+### int16_t getMaxPayloadSize (int8\_t DATARATE)
 
 TLM922Sに指定の DR値で送受信可能な最大ペイロードサイズを問い合わせる。
 返値は 0から 242の整数で、単位は byteである。
@@ -597,7 +578,7 @@ TLM922Sに設定された現在の Adaptive Data Rate スケジュール（ADR�
 if (LoRaWAN.getAdr()) Serial.println("lorawan get_adr on");
 ```
 
-### bool setAdr (bool ADR_MODE)
+### bool setAdr (bool ADR\_MODE)
 
 TLM922Sに Adaptive Data Rate スケジュール（ADRモード）の使用を指示する。
 成功すれば真（==PS_OK）
@@ -626,7 +607,7 @@ if (LoRaWAN.loraSave()) Serial.println("lorawan save ok");
 まれに失敗してハードリセットがかかることがある。
 この場合の保存可否については保証されない（普通は失敗している）
 
-### bool join (bool JOIN_MODE)
+### bool join (bool JOIN\_MODE)
 
 TLM922Sに指定のモードで、joinリクエストの発行を指示する。
 第1プロンプトが PS_OK であれば真が返り、joinResult() を実行することができる。
@@ -663,13 +644,13 @@ getResult() の返値は以下の通り。
 
 ### bool joinResult (void)
 
-TLM922Sに指示したjoinコマンドの、実行結果を受け取る。
+TLM922Sに指示した joinコマンドの、実行結果を受け取る。
 第2プロンプトが PS_ACCEPTED であれば真が返る。
 
 ```c
 Serial.println(F("try join otaa"));
-while (!(LoRaWAN.join(JOIN_OTAA) &&
-         LoRaWAN.joinResult())) delay(1000);
+while (!( LoRaWAN.join(JOIN_OTAA) &&
+          LoRaWAN.joinResult()    )) delay(1000);
 Serial.println(F("accepted"));
 ```
 
@@ -729,19 +710,7 @@ TLM922Sから現在のダウンリンクカウント値を取得する。
 uint32_t downcount = LoRaWAN.getDownCount(dr);
 ```
 
-### bool setLinkCheck (void)
-
-TLM922Sにリンクチェック（MACレイヤーテスト）を指示する。
-成功すると真を返す（==PS_OK）
-
-このメソッドは通信品質試験用である。通常の運用において使用するべきではない。
-
-リンクチェックが指示されると
-TLM922Sは次回の tx送信パケットに 1byteの拡張ペイロードを付加する。
-このため getMaxPayloadSize() で得られる値より
-1byte少ないペイロードデータしか送れなくなるので注意すること。
-
-### bool tx (bool TX_MODE, uint8_t FPORT)
+### bool tx (bool TX\_MODE, uint8\_t FPORT)
 
 TLM922Sに送る txコマンドの送信準備を行う。
 成功すると真を返す。
@@ -762,62 +731,66 @@ TX_CNF はゲートウェイ／サーバに ACKダウンリンクを要求し、
 当該 ACKを txResult() が受信できない場合は PS_ERR となる。
 
 FPORTには任意のアプリケーションポート番号を指定する。
-指定可能範囲は 1から 223で、それ以外は予約番号である。
+指定可能範囲は 1から 223で、それ以外は何らかの内部機能が割り当てられている予約番号である。
 
-### void txData (char* HEXSTRING)
+### bool txData (char* HEXSTRING)
 
-TLM922Sにペイロードデータを直接送る。
-返値はない。
+TLM922Sへ文字列ペイロードデータを直接送る。
+常に真を返す。
 
 このメソッドは write(char* str) メソッドと等価である。
 書き込むデータは HEX文字列でなければならない。
 
-### void txData (char* HEXSTRING, int BYTELENGTH)
+### bool txData (char* HEXSTRING, int BYTELENGTH)
 
-TLM922Sにペイロードデータを直接無変換で送る。
-返値はない。
+TLM922Sへ文字列ペイロードデータを指定キャラクタ数、直接無変換で送る。
+常に真を返す。
 
 このメソッドは write(char* str, int len) メソッドと等価である。
 書き込むデータは HEX文字列でなければならない。
 
-### void txData (signed char HEXCHAR)
+### bool txData (signed char HEXCHAR)
 
-TLM922Sにペイロードデータを直接無変換で送る。
-返値はない。
+TLM922Sへ、1キャラクタを直接無変換で送る。
+常に真を返す。
 
 このメソッドは write(char character) メソッドと等価である。
 書き込むデータは HEX文字列でなければならない。
 
-### void txData (uint8_t VALUE)
+型cast に注意すること。
+曖昧さを避けるには txData(uint32\_t VALUE, NIBBLE) を使うこと。
 
-TLM922Sへ、8bitの無符号整数を HEX文字列 2byte（bigendian）に変換して送る。
-返値はない。
+### bool txData (uint8\_t VALUE)
 
-### void txData (int VALUE)
+TLM922Sへ、8bitの整数を HEX文字列 2byte（bigendian）に変換して送る。
+常に真を返す。
 
-TLM922Sへ、16bitの符号付整数を HEX文字列 4byte（bigendian）に変換して送る。
-返値はない。
+型cast に注意すること。
+曖昧さを避けるには txData(uint32\_t VALUE, NIBBLE) を使うこと。
 
-### void txData (uint16_t VALUE)
+### bool txData (int VALUE)
+### bool txData (uint16\_t VALUE)
 
-TLM922Sへ、16bitの無符号整数を HEX文字列 4byte（bigendian）に変換して送る。
-返値はない。
+TLM922Sへ、16bit整数を HEX文字列 4byte（bigendian）に変換して送る。
+常に真を返す。
 
-### void txData (long VALUE)
+型cast に注意すること。
+曖昧さを避けるには txData(uint32\_t VALUE, NIBBLE) を使うこと。
 
-TLM922Sへ、32bitの符号付整数を HEX文字列 8byte（bigendian）に変換して送る。
-返値はない。
+### bool txData (long VALUE)
+### bool txData (uint32\_t VALUE)
 
-### void txData (uint32_t VALUE)
+TLM922Sへ、32bit整数を HEX文字列 8byte（bigendian）に変換して送る。
+常に真を返す。
 
-TLM922Sへ、32bitの無符号整数を HEX文字列 8byte（bigendian）に変換して送る。
-返値はない。
+型cast に注意すること。
+曖昧さを避けるには txData(uint32\_t VALUE, NIBBLE) を使うこと。
 
-### void txData (uint32_t VALUE, NIBBLE)
+### bool txData (uint32\_t VALUE, NIBBLE)
 
-TLM922Sへ、32bitの無符号整数（littleendian）の下位から指定桁数ニブルを取り出し
+TLM922Sへ、32bit整数（littleendian）の下位から指定桁数ニブルを取り出し
 HEX文字列（bigendian）に変換して送る。
-返値はない。
+常に真を返す。
 
 ```c
 uint32_t value = 0x12345678;
@@ -864,24 +837,191 @@ txData() で組み立てたペイロードデータがHEX文字列でない、
 
 ```c
 // char data[] = "0123456789abcdef";
-tx(confirm, fport);
-txData(data);
-return txRequest();
+return ( tx(confirm, fport) && txData(data) && txRequest() );
 ```
 
 送信するペイロードデータは、HEX文字列に変換済でなければならない。
 
 ### bool txResult (void)
 
-### bool isLinkCheck (void)
-### int8_t getMargin (void)
-### int8_t getGateways (void)
+TLM922Sに指示した txコマンドの、実行結果を受け取る。
+第2プロンプトが PS_TXOK であれば真が返る。
+
+```c
+if ( LoRaWAN.tx(TX_CNF, 1) &&
+     LoRaWAN.txData(data)  &&
+     LoRaWAN.txRequest()   &&
+     LoRaWAN.txResult()    )
+{
+    Serial.println("tx_ok");
+    if (LoRaWAN.isData()) {
+        Serial.print("rx:");
+        Serial.print(LoRaWAN.getRxPort());
+        Serial.print(":");
+        Serial.println(LoRaWAN.getData());
+    }
+}
+```
+
+getResult() の返値は以下の通り。
+
+|真偽|メンバー名|意味|
+|---|---|---|
+|true|PS_TXOK|tx送信成功/ACK成功(TX_CNF)|
+|false|PS_ERR|tx送信失敗/ACK受信なし(TX_CNF)|
+|false|PS_NOOP|UART応答なし(タイムアウト)|
+
+TC_UCNF の場合、ACK応答の確認が不要なので
+エンドノードが電波発信に成功しさえすれば PS_TXOK が返る。
+また ACK応答を待つ必要はないが、受信待ち自体は一定時間行っている。
+これはリンクチェックを指示している場合や、
+rxダウンリンクが送られてこないかを確認するためで、
+TX_UCNF の場合はこれらが正しく得られなくても TX_ERRとはならない。
+
+TX_CNF の場合は受信待ちが発生し、ACK応答が得られなければ、
+あるいは損傷していれば TX_ERR となる。
+リンクチェック応答が失敗／損傷していても TX_ERR とはならない。
+rxダウンリンクが発生した場合、ペイロードが壊れている場合は
+（ACK受信に成功している場合でも）TX_ERR となる。
+
+rxダウンリンクが受信され、有効なペイロードデータが得られた場合は
+isData() が真を返し、
+getRxPort() でアプリケーションポート番号を、
+getData() でペイロードデータを得られる。
+
+リンクチェック結果が得られた場合は isLinkCheck() が真を返す。
+
 ### int8_t getRxPort (void)
 
+rxダウンリンクが受信され、有効なペイロードデータが得られた場合は
+アプリケーションポート番号を返す。
+受信されていない場合は -1 を返す。
 
+### bool setLinkCheck (void)
 
+TLM922Sにリンクチェック（MACレイヤーテスト）を指示する。
+成功すると真を返す（==PS_OK）
+
+このメソッドは通信品質試験用である。
+使用すると txコマンドにて追加の第2プロンプトが発生し、UART受信バッファが溢れやすくなる。
+指示が有効なのは次回の txコマンドのみであるため、続けて行うには毎回指示しなければならない。
+
+リンクチェックが指示されると
+TLM922S は次回の tx送信ペイロードに 1byteの拡張ペイロードを付加する。
+このため getMaxPayloadSize() で得られる値より
+1byte少ないペイロードデータしかアプリケーションは送れなくなる。
+また rx受信ペイロードに関しても 2byteの空きが必要である。
+端的に言えば、TX_CNF とともに使用すべきではない。txResult() を参照のこと。
+
+リンクチェックの結果は、次回以降の txコマンドのダウンリンクで得られる。
+従って複数回に渡って使用しつづけなければ意味がない。
+
+リンクチェックの結果は、
+ゲートウェイがバックエンドサーバの応答を確認して生成している。
+この値が得られるということは、サービス通信が健全であることを意味する。
+逆にバックエンドサーバがリンクチェックに対応していなければ、この値は取得できない。
+つまるところサービスプロパイダの実装依存であり、
+要求がドロップされることもある。
+
+よって、通常の運用では使用すべきではない。
+
+### bool isLinkCheck (void)
+
+txコマンドにて、リンクチェックが成功した場合は真を返す。
+成功していれば getMargin() と getGateways() は有効な値を返す。
+
+### int8_t getMargin (void)
+
+リンクチェックの結果、得られたノイズマージン値を返す。
+値の範囲は 0以上の整数である。無効な場合は -1 を返す。
+
+ノイズマージン値の単位は dB で、RSSI値を導出する要素のひとつである。
+ゲートウェイとの距離が近くあるいはノイズが少なければ大きく、
+ゲートウェイとの距離が遠いかあるいはノイズが多ければ小さくなる。
+0 は電波到達限界の目安となるが、
+31 以上になることはまずありえない。
+それ以前に受信感度が強すぎて解析不能（PS_ERR）であるか、
+キャリアセンスに失敗（NO_FREECH）しているであろう。
+
+リンクチェックの結果は、
+ゲートウェイがバックエンドサーバの応答を確認して生成している。
+この値が得られるということは、サービス通信が健全であることを意味する。
+逆にバックエンドサーバがリンクチェックに対応していなければ、この値は取得できない。
+つまるところサービスプロパイダの実装依存である。
+
+### int8_t getGateways (void)
+
+リンクチェックの結果、得られた応答ゲートウェイの数を返す。
+値の範囲は 1 以上の整数である。無効な場合は -1 を返す。
+0 になることはありえない。
+復数のサービスゲートウェイが tx送信到達圏内にあれば 2 以上の値が得られる。
+受信可能でもサービスプロパイダが異なるゲートウェイは検出されない。
+
+リンクチェックの結果は、
+ゲートウェイがバックエンドサーバの応答を確認して生成している。
+この値が得られるということは、サービス通信が健全であることを意味する。
+逆にバックエンドサーバがリンクチェックに対応していなければ、この値は取得できない。
+つまるところサービスプロパイダの実装依存である。
 
 ## ユーティリティ／実験的実装
+
+### int32_t getValue (void)
+
+TLM922Sから取得した最後の数値データを返す。
+取得に失敗していると -1 を返す。
+
+```c
+int32_t valueInt = LoRaWAN.getValue();
+```
+
+### uint8_t isData (void)
+
+TLM922Sから文字列データが取得されているを調べる。
+返されるのは保持しているキャラクタ数で、最大値は 242 byteである。
+
+txResult() で rxダウンリンクペイロードが受信されている場合は真を返す。
+
+### String getData (void)
+
+TLM922Sから取得した文字列データを String型で返す。
+
+```c
+if (LoRaWAN.isData()) {
+    String resultData = LoRaWAN.getData();
+}
+```
+
+txResult() で rxダウンリンクペイロードが受信されている場合は、
+このメソッドで rxペイロードデータが得られる。
+TLM922Sからは HEXDATAが送られてくるが、
+このメソッドでは Binary変換されたデータを返す。
+
+rxダウンリンクペイロードの最大サイズは、getMaxPayloadSize() に一致する。
+つまり DateRate が DR2 で 11 byte までが tx送信可能であるとしたならば、
+rx受信可能な大きさも 11 byte までである。
+
+ゲートウェイが、エンドノードが受信可能サイズを超える
+rxペイロードを保持している場合の挙動は、サービスプロパイダの実装に依存する。
+
+双方向通信アプリケーションを作成する場合は、以下の点に留意する。
+- rxペイロードの保持キューは、無制限にあるか、ひとつだけか、あるいは未実装か。
+- 保持キューは FIFOか、FILOか。
+- ひとつの保持キューの格納サイズは、無制限か、制約があるか。
+- エンドノードが受け取れないサイズのペイロードは、破棄されるか、保持されるか、トリミングして送られるか。
+- 保持されているキューの保持期限は限定的か、永続的か。
+- 複数エンドノードに同報するマルチキャストか、単一ユニキャストか。
+
+例）SenseWay 社の場合
+
+- 保持キューはエンドノードひとつに付き、ひとつだけである。
+- 保持キューは特定のエンドノードを指定しなければならず、ユニキャストである。
+- エンドノードの発信した DR値より大きなペイロードが保持キューにある場合は、送信せずに保持しつづける。（トリミングしない）
+- エンドノードがより大きな DR値で通信してきたなら、rxペイロードを送信し、保持キューはクリアする。
+- 送信した rxペイロードのエンドノードへの到達保証はしないが、送信したことを示す通知ログをネットワークアプリケーションは受け取ることが出来る。
+- 通知ログにはネットワークアプリケーション固有のシーケンス番号などを、追加で含めることが出来る。
+- 新たな rxペイロードがネットワークアプリケーションから送られてきた場合は、既存の保持キューは破棄され、新たなペイロードで上書きされる。
+- 従ってエンドノードが受信不能なサイズのペイロードが仮に保持されたとしても、ネットワークアプリケーションからの再操作で復旧できる。（より小さなペイロードを改めてキューへ送る）
+- 保持中のキューは、サーバ再起動で無条件破棄されないかぎり、永続的である。
 
 ## その他
 

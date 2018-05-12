@@ -124,7 +124,7 @@ public:
     inline bool getDevAddr (void) { return getStringCommand(EX_LORA_GET_DEVADDR); }
     inline uint32_t getUpCount (void) { return getValueCommand(EX_LORA_GET_UPCNT); }
     inline uint32_t getDownCount (void) { return getValueCommand(EX_LORA_GET_DWCNT); }
-    
+
     inline bool setLinkCheck (void) { return runCommand(EX_LORA_SET_LINK); }
     inline bool tx (bool confirm, uint8_t fport, char* data) {
         tx(confirm, fport);
@@ -132,16 +132,16 @@ public:
         return txRequest();
     }
     bool tx (bool, uint8_t);
-    inline void txData (char* str) { this->LORAWAN_TLM922S_SERIAL::write(str); }
-    inline void txData (const char* str) { this->LORAWAN_TLM922S_SERIAL::write(str); }
-    inline void txData (char* str, int len) { this->LORAWAN_TLM922S_SERIAL::write(str, len); }
-    inline void txData (char c) { this->LORAWAN_TLM922S_SERIAL::write(c); };
-    inline void txData (uint8_t v) { txData((uint32_t)(v), 2); }
-    inline void txData (int v) { txData((uint32_t)(v), 4); }
-    inline void txData (uint16_t v) { txData((uint32_t)(v), 4); }
-    inline void txData (long v) { txData((uint32_t)(v), 8); }
-    inline void txData (uint32_t v) { txData((uint32_t)(v), 8); }
-    void txData (uint32_t, int);
+    inline bool txData (char* str) { return this->LORAWAN_TLM922S_SERIAL::write(str); }
+    inline bool txData (const char* str) { return this->LORAWAN_TLM922S_SERIAL::write(str); }
+    inline bool txData (char* str, int len) { return this->LORAWAN_TLM922S_SERIAL::write(str, len); }
+    inline bool txData (char c) { return this->LORAWAN_TLM922S_SERIAL::write(c); };
+    inline bool txData (uint8_t v) { return txData((uint32_t)(v), 2); }
+    inline bool txData (int v) { return txData((uint32_t)(v), 4); }
+    inline bool txData (uint16_t v) { return txData((uint32_t)(v), 4); }
+    inline bool txData (long v) { return txData((uint32_t)(v), 8); }
+    inline bool txData (uint32_t v) { return txData((uint32_t)(v), 8); }
+    bool txData (uint32_t, int);
     bool txRequest (void);
     inline bool txRequest(bool c, uint8_t f, char* s) { return tx(c, f, s); }
     bool txResult (void);

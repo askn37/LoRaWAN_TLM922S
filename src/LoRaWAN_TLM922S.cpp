@@ -426,7 +426,7 @@ bool LoRaWAN_TLM922S::tx (bool confirm, uint8_t fport) {
 
 // tx送信データ
 // 指定のニブル幅を倍整数下位からビッグエンディアン HEXDIGIT で送る
-void LoRaWAN_TLM922S::txData (uint32_t value, int nibble) {
+bool LoRaWAN_TLM922S::txData (uint32_t value, int nibble) {
     for (int i = 8; i > 0; i--) {
         if (i <= nibble) {
             uint8_t c = value >> 28;
@@ -434,6 +434,7 @@ void LoRaWAN_TLM922S::txData (uint32_t value, int nibble) {
         }
         value <<= 4;
     }
+    return true;
 }
 
 // tx送信実行
