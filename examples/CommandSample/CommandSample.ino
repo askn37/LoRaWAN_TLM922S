@@ -18,7 +18,7 @@
 
 #define SET_DR      2
 #define SET_FPORT   1
-#define SET_CNF     TX_UCNF
+#define SET_CNF     TX_CNF
 
 #define LORAWAN_BAUD	9600
 #define CONSOLE_BAUD	9600
