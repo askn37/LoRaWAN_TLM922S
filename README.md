@@ -166,6 +166,10 @@ LoRaWAN_TLM922S.h ヘッダファイル内の以下の定義を変更する。
 // #define LORAWAN_TLM922S_USED_SOFTWARESERIAL
 ```
 
+どちらを選ぶべきかは導入したいアプリケーションによる。
+MultiUART は TIMER1 または TIMER2 の何れかを必要とする。
+SoftwareSerial は ISR(PCINTn_vect) をすべて占有する。
+
 ### operator bool (void)
 
 真偽値として評価された場合、通信準備ができているかを返す。
@@ -1023,28 +1027,9 @@ rxペイロードを保持している場合の挙動は、サービスプロパ
 - 従ってエンドノードが受信不能なサイズのペイロードが仮に保持されたとしても、ネットワークアプリケーションからの再操作で復旧できる。（より小さなペイロードを改めてキューへ送る）
 - 保持中のキューは、サーバ再起動で無条件破棄されないかぎり、永続的である。
 
-## その他
-
-Stream と Print クラスを継承しているため、以下のメソッドが機能する。
-
-	print() println()
-
-以下のメソッドは使えるはずだが、充分にはテストされていない。
-
-	setTimeout() find() findUntil() readBytes() readBytesUntil()
-	readString() readStringUntil() parseInt() parseFloat()
-
-以下のコールバック関数宣言はサポートされない。
-
-	serialEvent()
-
-# 応用
-
-
-
 # 既知の不具合／制約／課題
 
-- 受信割込、serialEvent() に相当する機能がない。
+- ClassB / ClassC 検証は不完全である。
 - 主要な AVR 以外はテストされていない。
 - 古い Arduino IDE には対応しない。1.8.5で動作確認。少なくとも C++11 は使えなければならない。
 - 英文マニュアルが未整備である。
@@ -1059,7 +1044,7 @@ MIT
 
 # 著作表示
 
-朝日薫/askn
+朝日薫 / askn
 (SenseWay Inc.)
 Twitter: [@askn37](https://twitter.com/askn37)
 GitHub: https://github.com/askn37
