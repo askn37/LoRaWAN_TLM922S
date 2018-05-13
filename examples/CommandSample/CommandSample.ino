@@ -16,9 +16,14 @@
 #define RX_PIN		11			// D11 I to O TLM_MOSI/TX(11)
 #define WAKE_PIN	7			// D7  O to I TLM_INT2/WakeUp/~Sleep(7)
 
-#define SET_DR      2
+#define SET_ADR     true        // adavtipe datarate mode
+// or
+#define SET_DR      2           // manual datarate
+
 #define SET_FPORT   1
-#define SET_CNF     TX_CNF
+#define SET_TX      TX_CNF
+#define SET_JOIN    JOIN_OTAA
+#define SET_LCHK    false
 
 #define LORAWAN_BAUD	9600
 #define CONSOLE_BAUD	9600
@@ -135,7 +140,7 @@ void setup (void) {
 
         // OTAAでjoinする
         // 第1プロンプト結果が Okなら真
-        f = LoRaWAN.join(JOIN_OTAA);
+        f = LoRaWAN.join(SET_JOIN);
         Serial.print(F("=join:")); Serial.println(f);
         if (f) {
             // 第2プロンプトを待つ
@@ -157,22 +162,18 @@ void setup (void) {
         Serial.println(']');
     }
 
-    // DR値を設定する
-    // 成功なら真
-    f = LoRaWAN.setDataRate(SET_DR);
-    Serial.print(F("=setDataRate:")); Serial.println(f);
-    printResult();
-
-    // ADRモード設定を調べる
-    // onなら真
-    f = LoRaWAN.getAdr();
-    Serial.print(F("=getAdr:")); Serial.println(f);
-    printResult();
-    if (!f) {
+    if (SET_ADR) {
         // ADRをオンにする
         // 成功なら真
         f = LoRaWAN.setAdr(ADR_ON);
         Serial.print(F("=setAdr:")); Serial.println(f);
+        printResult();
+    }
+    else {
+        // DR値を設定する
+        // 成功なら真
+        f = LoRaWAN.setDataRate(SET_DR);
+        Serial.print(F("=setDataRate:")); Serial.println(f);
         printResult();
     }
 
@@ -193,16 +194,17 @@ void loop (void) {
     uint32_t v;
     bool f;
 
-    // ADRを有効化するため
-    // リンクチェックを要求する
-    // 成功なら真
-    f = LoRaWAN.setLinkCheck();
-    Serial.print(F("=setLinkCheck:")); Serial.println(f);
-    printResult();
+    if (SET_LCHK) {
+        // リンクチェックを要求する
+        // 成功なら真
+        f = LoRaWAN.setLinkCheck();
+        Serial.print(F("=setLinkCheck:")); Serial.println(f);
+        printResult();
+    }
 
     // txコマンドを準備する
     // 成功すれば真
-    f = LoRaWAN.tx(SET_CNF, SET_FPORT);
+    f = LoRaWAN.tx(SET_TX, SET_FPORT);
     Serial.print(F("=tx:")); Serial.println(f);
     printResult();
 
