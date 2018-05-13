@@ -16,9 +16,9 @@
 #define RX_PIN		11			// D11 I to O TLM_MOSI/TX(11)
 #define WAKE_PIN	7			// D7  O to I TLM_INT2/WakeUp/~Sleep(7)
 
-#define SET_ADR     true        // adavtipe datarate mode
+#define SET_ADR     false        // adavtipe datarate mode
 // or
-#define SET_DR      2           // manual datarate
+#define SET_DR      3           // manual datarate
 
 #define SET_FPORT   1
 #define SET_TX      TX_CNF
@@ -263,6 +263,10 @@ void loop (void) {
     v = LoRaWAN.getDownCount();
     Serial.print(F("=getDownCount:")); Serial.println(v);
     printResult();
+
+    // メモリ残量を表示
+    Serial.print(F("=freeMemory:"));
+    Serial.println(LoRaWAN.freeMemory());
 
     // Sleepピンを下げて、スリープ可能にする
     digitalWrite(WAKE_PIN, LOW);

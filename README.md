@@ -911,6 +911,39 @@ txResult() で rxダウンリンクペイロードが受信されている場合
 TLM922Sからは HEXDATAが送られてくるが、
 このメソッドでは Binary変換されたデータを返す。
 
+### tlmps_t nextPrompt (uint16_t MS)
+
+TLM922Sが次のプロンプトまたはプレフィクスを返すまで
+UART受信バッファを読み飛ばす。
+引数にはタイムアウト（ミリ秒）を指定する。
+返り値は tlmps_t列挙型で、
+タイムアウトした場合は PS_NOOPを、
+そうでなければ見つかったプロンプトを返す。
+
+このメソッドは本ライブラリで用意されていない
+TLM922Sコマンドの出力解析を補助する。
+
+```c
+// JOIN_OTAAで更新された周波数チャンネルリストを取得する
+for (int i = 0; i <= 15; i++) {
+    while (!LoRaWAN.getReady());
+    LoRaWAN.print("lorawan get_ch_para ");
+    LoRaWAN.print(i, DEC);
+    LoRaWAN.write('\r');    // not use println() !
+    Serial.println();
+    if (PS_PREFIX == LoRaWAN.nextPrompt(100)) {
+        String data = LoRaWAN.readStringUntil('\r');
+        Serial.println(data);
+    }
+}
+```
+
+### size_t freeMemory (void)
+
+Arduinoの現在の SRAM残量（heap free）を返す。
+このメソッド自体が幾ばくかのスタックを消費するので
+得られる値は目安であるが、これより少ないことはない。
+
 ## リンクチェック（サービス健全性確認）
 
 以下は通常の用途では使用しない。

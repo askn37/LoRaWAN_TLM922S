@@ -104,7 +104,7 @@ bool LoRaWAN_TLM922S::wait (uint16_t timeout) {
 // 見つかったプロンプトは this->_current
 // 直前のプロンプトは this->_result
 // タイムアウト既定値は10ms(10000)
-uint8_t LoRaWAN_TLM922S::nextPrompt (uint16_t timeout) {
+tlmps_t LoRaWAN_TLM922S::nextPrompt (uint16_t timeout) {
     if (timeout) wait(timeout);
     while (wait()) {
         if (this->LORAWAN_TLM922S_SERIAL::available()) {
@@ -113,7 +113,7 @@ uint8_t LoRaWAN_TLM922S::nextPrompt (uint16_t timeout) {
             uint8_t r = parsePrompt(c);
             if (r != PS_NOOP) {
                 _result = _current;
-                return (_current = r);
+                return (tlmps_t)(_current = r);
             }
         }
     }
@@ -134,13 +134,13 @@ bool LoRaWAN_TLM922S::getReady (void) {
 // いずれかのプロンプトが現れるまで進める
 // 見つかったプロンプトを返す（this->_current）
 // 直前のプロンプトは this->_result にある
-uint8_t LoRaWAN_TLM922S::skipPrompt (uint8_t ps1, uint8_t ps2, uint16_t timeout) {
+tlmps_t LoRaWAN_TLM922S::skipPrompt (uint8_t ps1, uint8_t ps2, uint16_t timeout) {
     uint8_t r;
     while ((r = nextPrompt(timeout)) != PS_NOOP) {
         if (r == ps1 || r == ps2) break;
         timeout = 0;
     }
-    return r;
+    return (tlmps_t)(r);
 }
 
 // 指定のコマンドを実行して PS_OK を確認する
@@ -487,6 +487,18 @@ bool LoRaWAN_TLM922S::txResult (void) {
     _txLoop:
     putEchoBack();
     return f;
+}
+
+//
+// ユーティリティ
+//
+size_t LoRaWAN_TLM922S::freeMemory (void) {
+    uint8_t *heapptr, *stackptr;
+    stackptr = (uint8_t*)malloc(4);         // use stackptr temporarily
+    heapptr = stackptr;                     // save value of heap pointer
+    free(stackptr);     // free up the memory again (sets stackptr to 0)
+    stackptr = (uint8_t*)(SP);              // save value of stack pointer
+    return (stackptr - heapptr);
 }
 
 // end of code

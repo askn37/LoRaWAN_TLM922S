@@ -72,8 +72,7 @@ private:
     void putEchoBack (void) { if (_echo) LORAWAN_TLM922S_DEBUG.print(_echoBack); clearEchoBack(); }
 
     bool wait(uint16_t = 0);
-    uint8_t nextPrompt (uint16_t = 100);
-    uint8_t skipPrompt (uint8_t = PS_READY, uint8_t = PS_READY, uint16_t = 100);
+    tlmps_t skipPrompt (uint8_t = PS_READY, uint8_t = PS_READY, uint16_t = 100);
     bool runCommand (uint8_t, uint16_t = 1000);
     bool runBoolCommand (uint8_t, uint16_t = 1000);
     bool getStringCommand (uint8_t, uint16_t = 1000);
@@ -92,6 +91,7 @@ public:
     void setEchoThrough (bool = false);
     inline tlmps_t getResult (void) { return (tlmps_t)_result; }
     bool getReady (void);
+    tlmps_t nextPrompt (uint16_t = 100);
     inline int32_t getValue (void) { return _value; }
     inline String getData (void) { return _rxData; }
     inline uint8_t isData (void) { return _rxData.length(); }
@@ -156,6 +156,7 @@ public:
 	size_t write (const uint8_t c);
     #endif
 
+    size_t freeMemory (void);
     static void echoback (LORAWAN_TLM922S_SERIAL*);
     static void echobackDrop (LORAWAN_TLM922S_SERIAL*);
 };
