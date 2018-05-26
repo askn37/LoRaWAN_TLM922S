@@ -795,7 +795,7 @@ txData(char* HEXSTRING) とは動作が異なるので注意。
 
 ```c
 String str = "AB";
-txHexData(str);    // "4142" が送られる
+txBinData(str);    // "4142" が送られる
 ```
 
 なお null文字が含まれるとそれ以後は正しく送信されない。
