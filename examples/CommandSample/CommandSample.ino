@@ -128,30 +128,30 @@ void setup (void) {
     Serial.print(F("=factoryReset:")); Serial.println(f);
     printResult();
 
-    // エコーバック無効化（ON=工場出荷時デフォルト）
-    // 成功すれば真
-    f = LoRaWAN.setEcho(ECHO_OFF);
-    Serial.print(F("=setEcho:")); Serial.println(f);
-    printResult();
-    LoRaWAN.setEchoThrough(ECHO_OFF);
+    // // エコーバック無効化（ON=工場出荷時デフォルト）
+    // // 成功すれば真
+    // f = LoRaWAN.setEcho(ECHO_OFF);
+    // Serial.print(F("=setEcho:")); Serial.println(f);
+    // printResult();
+    // LoRaWAN.setEchoThrough(ECHO_OFF);
 
-    // EEPROMに保存されたAppsKey文字列取得（メモリを大量に使う）
-    // 成功すれば真
-    f = LoRaWAN.getAllKey();
-    Serial.print(F("=getAllKey:")); Serial.println(f);
-    printResult();
-    if (LoRaWAN.isData()) {
-        Serial.print(F("=getData:["));
-        Serial.print(LoRaWAN.getData());
-        Serial.println(']');
-    }
+    // // EEPROMに保存されたAppsKey文字列取得（メモリを大量に使う）
+    // // 成功すれば真
+    // f = LoRaWAN.getAllKey();
+    // Serial.print(F("=getAllKey:")); Serial.println(f);
+    // printResult();
+    // if (LoRaWAN.isData()) {
+    //     Serial.print(F("=getData:["));
+    //     Serial.print(LoRaWAN.getData());
+    //     Serial.println(']');
+    // }
 
-    // エコーバック有効化（ON=工場出荷時デフォルト）
-    // 成功すれば真
-    f = LoRaWAN.setEcho(ECHO_ON);
-    Serial.print(F("=setEcho:")); Serial.println(f);
-    printResult();
-    LoRaWAN.setEchoThrough(ECHO_ON);
+    // // エコーバック有効化（ON=工場出荷時デフォルト）
+    // // 成功すれば真
+    // f = LoRaWAN.setEcho(ECHO_ON);
+    // Serial.print(F("=setEcho:")); Serial.println(f);
+    // printResult();
+    // LoRaWAN.setEchoThrough(ECHO_ON);
 
     // joinが成功するまでループ
     do {
@@ -234,6 +234,7 @@ void loop (void) {
     // 送信を実行
     // 第1プロンプト結果が Okなら真
     f = LoRaWAN.txRequest();
+    delay(1000);
     Serial.print(F("=tx:")); Serial.println(f);
     printResult();
     if (f) {

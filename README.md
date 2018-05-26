@@ -716,14 +716,6 @@ TX_CNF はゲートウェイ／サーバに ACKダウンリンクを要求し、
 FPORTには任意のアプリケーションポート番号を指定する。
 指定可能範囲は 1から 223で、それ以外は何らかの内部機能が割り当てられている予約番号である。
 
-### bool txData (String HEXSTRING)
-
-TLM922SへString型ペイロードデータを直接送る。
-常に真を返す。
-
-このメソッドは print(String str) メソッドと等価である。
-書き込むデータは HEX文字列でなければならない。
-
 ### bool txData (char* HEXSTRING)
 
 TLM922Sへ C文字列ペイロードデータを直接送る。
@@ -794,6 +786,19 @@ txData(value, 6);	// "2345678"
 txData(value, 7);	// "12345678"
 txData(value, 8);	// "012345678"  == txData((uint32_t) value);
 ```
+
+### bool txHexData (String STRING)
+
+TLM922Sへ String型 "バイナリ" ペイロードデータを HEX文字列に変換して送る。
+常に真を返す。
+txData(char* HEXSTRING) とは動作が異なるので注意。
+
+```c
+String str = "AB";
+txData(str);    // "4142" が送られる
+```
+
+なお null文字が含まれるとそれ以後は正しく送信されない。
 
 ### bool txRequest (void)
 
