@@ -14,17 +14,17 @@
 #include <avr/pgmspace.h>
 
 #define PS_DICT_MAX (167)
-#define CMD_DIC_LEN (196)
+#define CMD_DIC_LEN (199)
 #define CMD_TABLE_LEN (26)
 
 extern const PROGMEM uint32_t PS_DICT[];    // 668 bytes
-extern const PROGMEM uint8_t CMD_DICT[];    // 588 bytes
+extern const PROGMEM uint8_t CMD_DICT[];    // 597 bytes
 extern const PROGMEM uint16_t CMD_TABLE[];  // 52 bytes
 
-// total 1308 bytes
+// total 1317 bytes
 
 typedef enum tlmps {
-	  PS_NOOP        	= 0
+      PS_NOOP        	= 0
     , PS_READY          = 1     // >
     , PS_PREFIX         = 2     // >>
     , PS_ENDRESET       = 3     // <
@@ -76,7 +76,7 @@ typedef enum tlmex {
     , EX_LORA_SET_ADR_ON    = 22    // lorawan set_adr on\r []
     , EX_LORA_SET_LINK      = 23    // lorawan set_linkchk\r []
     , EX_LOLA_GET_MAX_PAY   = 24    // lorawan get_max_payload_table <F> [ex_dec]
-    , EX_LORA_GET_APPSKEY   = 25    // lorawan get_appskey\r [ex_hex]
+    , EX_MP_GETKEY          = 25    // mp get_key\r [ex_hex]
 } tlmex_t;
 
 #endif

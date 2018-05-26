@@ -83,7 +83,8 @@ private:
     uint32_t parseValue (bool = false, uint16_t timeout = 1000);
 
 public:
-    using LORAWAN_TLM922S_SERIAL::LORAWAN_TLM922S_SERIAL;
+ 	using super = LORAWAN_TLM922S_SERIAL;
+	using super::super;
     LoRaWAN_TLM922S (uint8_t, uint8_t);
 
     // command interface method
@@ -102,7 +103,7 @@ public:
     bool reset (void);
     inline bool getVersion (void) { return getStringCommand(EX_MOD_GET_VER); }
     inline bool getDevEUI (void) { return getStringCommand(EX_MOD_GET_DEVEUI); }
-    inline bool getAppsKey (void) { return getStringCommand(EX_LORA_GET_APPSKEY); }
+    inline bool getAllKey (void) { return getStringCommand(EX_MP_GETKEY); }
     bool sleep (uint16_t = 0);
     bool wakeUp (void);
     void setBaudRate (long);
@@ -132,15 +133,16 @@ public:
         return txRequest();
     }
     bool tx (bool, uint8_t);
-    inline bool txData (char* str) { return this->LORAWAN_TLM922S_SERIAL::write(str); }
-    inline bool txData (const char* str) { return this->LORAWAN_TLM922S_SERIAL::write(str); }
-    inline bool txData (char* str, int len) { return this->LORAWAN_TLM922S_SERIAL::write(str, len); }
-    inline bool txData (char c) { return this->LORAWAN_TLM922S_SERIAL::write(c); };
+    inline bool txData (char* str) { return this->super::write(str); }
+    inline bool txData (const char* str) { return this->super::write(str); }
+    inline bool txData (char* str, int len) { return this->super::write(str, len); }
+    inline bool txData (char c) { return this->super::write(c); };
     inline bool txData (uint8_t v) { return txData((uint32_t)(v), 2); }
     inline bool txData (int v) { return txData((uint32_t)(v), 4); }
     inline bool txData (uint16_t v) { return txData((uint32_t)(v), 4); }
     inline bool txData (long v) { return txData((uint32_t)(v), 8); }
     inline bool txData (uint32_t v) { return txData((uint32_t)(v), 8); }
+    bool txData (String);
     bool txData (uint32_t, int);
     bool txRequest (void);
     inline bool txRequest(bool c, uint8_t f, char* s) { return tx(c, f, s); }
@@ -152,13 +154,12 @@ public:
     inline int8_t getRxPort (void) { return _rxPort; }
 
     #ifndef LORAWAN_TLM922S_USED_MULTIUART
-	using LORAWAN_TLM922S_SERIAL::write;
+	using super::write;
 	size_t write (const uint8_t c);
     #endif
 
-    size_t freeMemory (void);
-    static void echoback (LORAWAN_TLM922S_SERIAL*);
-    static void echobackDrop (LORAWAN_TLM922S_SERIAL*);
+    static void echoback (super*);
+    static void echobackDrop (super*);
 };
 
 #endif

@@ -16,12 +16,12 @@
 // コンストラクタ
 //
 LoRaWAN_TLM922S::LoRaWAN_TLM922S (uint8_t _RX_PIN, uint8_t _TX_PIN)
-    : LORAWAN_TLM922S_SERIAL(_RX_PIN, _TX_PIN)
+    : super(_RX_PIN, _TX_PIN)
     , _echo(false)
 {
     // 基底クラスのカスタマイズ
     #ifdef LORAWAN_TLM922S_USED_MULTIUART
-    LORAWAN_TLM922S_SERIAL::setWriteBack(&LoRaWAN_TLM922S::echobackDrop);
+    super::setWriteBack(&LoRaWAN_TLM922S::echobackDrop);
     #endif
 }
 
@@ -73,7 +73,7 @@ void LoRaWAN_TLM922S::putCommand (const uint8_t command) {
     work += (char) addr;
     s = work.length();
     while (s > 0) {
-        this->LORAWAN_TLM922S_SERIAL::write(work[--s]);
+        this->super::write(work[--s]);
     }
 }
 
@@ -107,8 +107,8 @@ bool LoRaWAN_TLM922S::wait (uint16_t timeout) {
 tlmps_t LoRaWAN_TLM922S::nextPrompt (uint16_t timeout) {
     if (timeout) wait(timeout);
     while (wait()) {
-        if (this->LORAWAN_TLM922S_SERIAL::available()) {
-            uint8_t c = this->LORAWAN_TLM922S_SERIAL::read();
+        if (this->super::available()) {
+            uint8_t c = this->super::read();
             pushEchoBack(c);
             uint8_t r = parsePrompt(c);
             if (r != PS_NOOP) {
@@ -122,10 +122,10 @@ tlmps_t LoRaWAN_TLM922S::nextPrompt (uint16_t timeout) {
 
 // 改行を1回打って PS_READY が現れるかを調べる
 bool LoRaWAN_TLM922S::getReady (void) {
-    while (this->LORAWAN_TLM922S_SERIAL::available()) {
-        this->LORAWAN_TLM922S_SERIAL::read();
+    while (this->super::available()) {
+        this->super::read();
     }
-    this->LORAWAN_TLM922S_SERIAL::write('\r');
+    this->super::write('\r');
     uint8_t f = (nextPrompt(100) == PS_READY);
     putEchoBack();
     return f;
@@ -188,19 +188,19 @@ uint32_t LoRaWAN_TLM922S::getValueCommand (uint8_t command, uint16_t timeout) {
 uint32_t LoRaWAN_TLM922S::parseDecimal (void) {
     uint32_t value = 0;
     while (wait()) {
-        if (this->LORAWAN_TLM922S_SERIAL::available()) {
-            uint8_t c = this->LORAWAN_TLM922S_SERIAL::peek();
+        if (this->super::available()) {
+            uint8_t c = this->super::peek();
             if (isDigit(c)) {
                 pushEchoBack(c);
                 value *= 10;
                 value += c - '0';
             }
             else if (c == ' ') {
-                pushEchoBack(this->LORAWAN_TLM922S_SERIAL::read());
+                pushEchoBack(this->super::read());
                 break;
             }
             else break;
-            this->LORAWAN_TLM922S_SERIAL::read();
+            this->super::read();
         }
     }
     return value;
@@ -214,8 +214,8 @@ void LoRaWAN_TLM922S::parseHexData (void) {
     uint16_t recv = 0;
     uint8_t x = 0;
     while (wait()) {
-        if (this->LORAWAN_TLM922S_SERIAL::available()) {
-            uint8_t c = this->LORAWAN_TLM922S_SERIAL::peek();
+        if (this->super::available()) {
+            uint8_t c = this->super::peek();
             if (isHexadecimalDigit(c)) {
                 if (c >= 'a') c -= 39;
                 else if (c >= 'A') c -= 7;
@@ -224,7 +224,7 @@ void LoRaWAN_TLM922S::parseHexData (void) {
                 else _rxData += (char)(x | c);
             }
             else break;
-            this->LORAWAN_TLM922S_SERIAL::read();
+            this->super::read();
         }
     }
     if (_echo) {
@@ -242,8 +242,8 @@ uint32_t LoRaWAN_TLM922S::parseValue (bool t, uint16_t timeout) {
     _rxData = "";
     wait(timeout);
     while (wait()) {
-        if (this->LORAWAN_TLM922S_SERIAL::available()) {
-            uint8_t c = this->LORAWAN_TLM922S_SERIAL::read();
+        if (this->super::available()) {
+            uint8_t c = this->super::read();
             uint8_t r = parsePrompt(c);
             pushEchoBack(c);
             if (f) {
@@ -290,10 +290,10 @@ void LoRaWAN_TLM922S::echobackDrop (MultiUART* UART) {
 #else
 // MultiUART以外は writeを上書きする
 size_t LoRaWAN_TLM922S::write (const uint8_t c) {
-	size_t r = this->LORAWAN_TLM922S_SERIAL::write(c);
-    if (this->LORAWAN_TLM922S_SERIAL::available() &&
-        this->LORAWAN_TLM922S_SERIAL::peek() != '\r') {
-        uint8_t c = this->LORAWAN_TLM922S_SERIAL::read();
+	size_t r = this->super::write(c);
+    if (this->super::available() &&
+        this->super::peek() != '\r') {
+        uint8_t c = this->super::read();
         if (_echo) LORAWAN_TLM922S_DEBUG.write(c);
     }
 	return r;
@@ -303,8 +303,8 @@ size_t LoRaWAN_TLM922S::write (const uint8_t c) {
 // write時のエコーバックを有効・無効にする
 void LoRaWAN_TLM922S::setEchoThrough (bool through) {
 #ifdef LORAWAN_TLM922S_USED_MULTIUART
-    if (through) LORAWAN_TLM922S_SERIAL::setWriteBack(&LoRaWAN_TLM922S::echoback);
-    else LORAWAN_TLM922S_SERIAL::setWriteBack(&LoRaWAN_TLM922S::echobackDrop);
+    if (through) super::setWriteBack(&LoRaWAN_TLM922S::echoback);
+    else super::setWriteBack(&LoRaWAN_TLM922S::echobackDrop);
 #endif
     _echo = through;
 }
@@ -324,11 +324,11 @@ bool LoRaWAN_TLM922S::reset (void) {
 bool LoRaWAN_TLM922S::sleep (uint16_t seconds) {
     if (!getReady()) return false;
     putCommand(EX_MOD_SLEEP);
-    this->LORAWAN_TLM922S_SERIAL::print(seconds, DEC);
-    this->LORAWAN_TLM922S_SERIAL::write('\r');
-    while (this->LORAWAN_TLM922S_SERIAL::available()) {
-        if (this->LORAWAN_TLM922S_SERIAL::peek() == '\r') break;
-        pushEchoBack(this->LORAWAN_TLM922S_SERIAL::read());
+    this->super::print(seconds, DEC);
+    this->super::write('\r');
+    while (this->super::available()) {
+        if (this->super::peek() == '\r') break;
+        pushEchoBack(this->super::read());
     }
     putEchoBack();
     return true;
@@ -345,10 +345,10 @@ bool LoRaWAN_TLM922S::wakeUp (void) {
 
 // 通信ボーレートを変更する
 void LoRaWAN_TLM922S::setBaudRate (long baudrate) {
-    if (!getReady()) return false;
+    if (!getReady()) return;
     putCommand(EX_MOD_SET_BAUD);
-    this->LORAWAN_TLM922S_SERIAL::print(baudrate, DEC);
-    this->LORAWAN_TLM922S_SERIAL::write('\r');
+    this->super::print(baudrate, DEC);
+    this->super::write('\r');
 }
 
 //
@@ -359,8 +359,8 @@ void LoRaWAN_TLM922S::setBaudRate (long baudrate) {
 bool LoRaWAN_TLM922S::setDataRate (uint8_t datarate) {
     if (!getReady()) return false;
     putCommand(EX_LORA_SET_DR);
-    this->LORAWAN_TLM922S_SERIAL::print(datarate, DEC);
-    this->LORAWAN_TLM922S_SERIAL::write('\r');
+    this->super::print(datarate, DEC);
+    this->super::write('\r');
     uint8_t r = skipPrompt(PS_OK, PS_READY, 500);
     uint8_t f = r == PS_OK;
     if (r != PS_READY) skipPrompt();
@@ -372,8 +372,8 @@ bool LoRaWAN_TLM922S::setDataRate (uint8_t datarate) {
 int16_t LoRaWAN_TLM922S::getMaxPayloadSize (int8_t dr) {
     if (!getReady()) return false;
     putCommand(EX_LOLA_GET_MAX_PAY);
-    this->LORAWAN_TLM922S_SERIAL::print(dr, DEC);
-    this->LORAWAN_TLM922S_SERIAL::write('\r');
+    this->super::print(dr, DEC);
+    this->super::write('\r');
     return parseValue(false, 1000);
 }
 
@@ -395,8 +395,8 @@ bool LoRaWAN_TLM922S::joinResult (void) {
     bool f = false;
     wait(10000);
     while (wait()) {
-        if (this->LORAWAN_TLM922S_SERIAL::available()) {
-            uint8_t c = this->LORAWAN_TLM922S_SERIAL::read();
+        if (this->super::available()) {
+            uint8_t c = this->super::read();
             uint8_t r = parsePrompt(c);
             pushEchoBack(c);
             if (r != PS_NOOP) {
@@ -419,8 +419,8 @@ bool LoRaWAN_TLM922S::joinResult (void) {
 bool LoRaWAN_TLM922S::tx (bool confirm, uint8_t fport) {
     if (!getReady()) return false;
     putCommand(confirm ? EX_LORA_TX_CNF : EX_LORA_TX_UCNF);
-    this->LORAWAN_TLM922S_SERIAL::print(fport, DEC);
-    this->LORAWAN_TLM922S_SERIAL::write(' ');
+    this->super::print(fport, DEC);
+    this->super::write(' ');
     return true;
 }
 
@@ -430,9 +430,19 @@ bool LoRaWAN_TLM922S::txData (uint32_t value, int nibble) {
     for (int i = 8; i > 0; i--) {
         if (i <= nibble) {
             uint8_t c = value >> 28;
-            this->LORAWAN_TLM922S_SERIAL::print(c, HEX);
+            this->super::print(c, HEX);
         }
         value <<= 4;
+    }
+    return true;
+}
+
+// tx送信データ
+// String型をビッグエンディアン HEXDIGIT で送る
+bool LoRaWAN_TLM922S::txData (String str) {
+    for (auto c : str) {
+        this->super::print(c >> 4, HEX);
+        this->super::print(c & 15, HEX);
     }
     return true;
 }
@@ -440,7 +450,7 @@ bool LoRaWAN_TLM922S::txData (uint32_t value, int nibble) {
 // tx送信実行
 // 第1プロンプト応答に 500ms待つ
 bool LoRaWAN_TLM922S::txRequest (void) {
-    this->LORAWAN_TLM922S_SERIAL::write('\r');
+    this->super::write('\r');
     uint8_t r = skipPrompt(PS_OK, PS_READY, 500);
     uint8_t f = r == PS_OK;
     if (r != PS_READY) skipPrompt();
@@ -457,8 +467,8 @@ bool LoRaWAN_TLM922S::txResult (void) {
     _rxData = "";
     wait(10000);
     while (wait()) {
-        if (this->LORAWAN_TLM922S_SERIAL::available()) {
-            uint8_t c = this->LORAWAN_TLM922S_SERIAL::read();
+        if (this->super::available()) {
+            uint8_t c = this->super::read();
             uint8_t r = parsePrompt(c);
             pushEchoBack(c);
             if (r != PS_NOOP) {
@@ -487,18 +497,6 @@ bool LoRaWAN_TLM922S::txResult (void) {
     _txLoop:
     putEchoBack();
     return f;
-}
-
-//
-// ユーティリティ
-//
-size_t LoRaWAN_TLM922S::freeMemory (void) {
-    uint8_t *heapptr, *stackptr;
-    stackptr = (uint8_t*)malloc(4);         // use stackptr temporarily
-    heapptr = stackptr;                     // save value of heap pointer
-    free(stackptr);     // free up the memory again (sets stackptr to 0)
-    stackptr = (uint8_t*)(SP);              // save value of stack pointer
-    return (stackptr - heapptr);
 }
 
 // end of code

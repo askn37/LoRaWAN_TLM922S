@@ -128,11 +128,30 @@ void setup (void) {
     Serial.print(F("=factoryReset:")); Serial.println(f);
     printResult();
 
+    // エコーバック無効化（ON=工場出荷時デフォルト）
+    // 成功すれば真
+    f = LoRaWAN.setEcho(ECHO_OFF);
+    Serial.print(F("=setEcho:")); Serial.println(f);
+    printResult();
+    LoRaWAN.setEchoThrough(ECHO_OFF);
+
+    // EEPROMに保存されたAppsKey文字列取得（メモリを大量に使う）
+    // 成功すれば真
+    f = LoRaWAN.getAppsKey();
+    Serial.print(F("=getAppsKey:")); Serial.println(f);
+    printResult();
+    if (LoRaWAN.isData()) {
+        Serial.print(F("=getData:["));
+        Serial.print(LoRaWAN.getData());
+        Serial.println(']');
+    }
+
     // エコーバック有効化（ON=工場出荷時デフォルト）
     // 成功すれば真
     f = LoRaWAN.setEcho(ECHO_ON);
     Serial.print(F("=setEcho:")); Serial.println(f);
     printResult();
+    LoRaWAN.setEchoThrough(ECHO_ON);
 
     // joinが成功するまでループ
     do {
@@ -263,10 +282,6 @@ void loop (void) {
     v = LoRaWAN.getDownCount();
     Serial.print(F("=getDownCount:")); Serial.println(v);
     printResult();
-
-    // メモリ残量を表示
-    Serial.print(F("=freeMemory:"));
-    Serial.println(LoRaWAN.freeMemory());
 
     // Sleepピンを下げて、スリープ可能にする
     digitalWrite(WAKE_PIN, LOW);
