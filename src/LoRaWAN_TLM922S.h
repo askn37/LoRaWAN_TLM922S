@@ -140,7 +140,7 @@ public:
     inline bool txData (uint16_t v) { return txData((uint32_t)(v), 4); }
     inline bool txData (long v) { return txData((uint32_t)(v), 8); }
     inline bool txData (uint32_t v) { return txData((uint32_t)(v), 8); }
-    bool txHexData (String);
+    bool txBinData (String);
     bool txData (uint32_t, int);
     bool txRequest (void);
     inline bool txRequest(bool c, uint8_t f, char* s) { return tx(c, f, s); }

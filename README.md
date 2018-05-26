@@ -787,7 +787,7 @@ txData(value, 7);	// "12345678"
 txData(value, 8);	// "012345678"  == txData((uint32_t) value);
 ```
 
-### bool txHexData (String STRING)
+### bool txBinData (String STRING)
 
 TLM922Sへ String型 "バイナリ" ペイロードデータを HEX文字列に変換して送る。
 常に真を返す。
