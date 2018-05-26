@@ -137,8 +137,8 @@ void setup (void) {
 
     // EEPROMに保存されたAppsKey文字列取得（メモリを大量に使う）
     // 成功すれば真
-    f = LoRaWAN.getAppsKey();
-    Serial.print(F("=getAppsKey:")); Serial.println(f);
+    f = LoRaWAN.getAllKey();
+    Serial.print(F("=getAllKey:")); Serial.println(f);
     printResult();
     if (LoRaWAN.isData()) {
         Serial.print(F("=getData:["));
