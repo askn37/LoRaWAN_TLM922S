@@ -97,13 +97,13 @@ joinResult() と txResult() はこの第2プロンプトを受け付けるため
 tx送信コマンドは、さらに tx() txData() txRequest() の三つ組のメソッドで使用している。
 それぞれ送信開始宣言、ペイロード構築、送信実行である。
 
-## リファレンス
+# リファレンス
 
 ここでは Arduinoスタイルではなく、型を含めた C/C++スタイルで各メソッドを記述する。
 
-### コンストラクタ
+## コンストラクタ
 
-#### LoRaWAN_TLM922S (uint8\_t RX\_PIN, uint8\_t TX\_PIN)
+### LoRaWAN_TLM922S (uint8\_t RX\_PIN, uint8\_t TX\_PIN)
 
 クラスオブジェクト生成にはこのコンストラクタを使用する。
 受信ピン、送信ピンの指定は必須である。
@@ -140,7 +140,7 @@ MultiUART は TIMER1 または TIMER2 の何れかを必要とする。
 SoftwareSerial は ISR(PCINTn_vect) をすべて占有し、
 受信バッファはひとつである。
 
-#### operator bool (void)
+### operator bool (void)
 
 真偽値として評価された場合、通信準備ができているかを返す。
 実際には常に真を返す。
@@ -149,11 +149,11 @@ SoftwareSerial は ISR(PCINTn_vect) をすべて占有し、
 if (LoRaWAN) Serial.println("true");
 ```
 
-### インターフェイスメソッド
+## インターフェイスメソッド
 
 UART送受信にかかわるメソッド群である。
 
-#### void begin (long SPEED)
+### void begin (long SPEED)
 
 UARTの通信ボーレートを設定し、Arduinoとモジュールとの通信を開始する。
 
@@ -165,7 +165,7 @@ LoRaWAN.begin(9600);
 
 本来はこのメソッドで Region を指定できるべきだが、本ライブラリでは対応しない。
 
-#### void setEchoThrough (bool ECHO\_MODE)
+### void setEchoThrough (bool ECHO\_MODE)
 
 TLM922Sモジュールからエコーバックキャラクタが送られてきた場合に、
 それをコンソールに転送するか、破棄するかを設定する。
@@ -192,7 +192,7 @@ LoRaWAN_TLM922S.h ヘッダファイル内の以下の定義を変更する。
 #endif
 ```
 
-#### tlmps_t getResult (void)
+### tlmps_t getResult (void)
 
 最後の（最新の）TLM922S応答プロンプト文字列を、
 tlmps_t列挙型（整数）にして返す。
@@ -249,7 +249,7 @@ ClassB/ClassC ダウンリンクが発生した場合、
 あらゆる局面で UART通信に割り込んでくる可能性（いつ受信が発生するか不定）がある。
 検証が充分ではないため、本ライブラリでは現状 ClassB/ClassC は対応外とする。
 
-#### bool getReady (void)
+### bool getReady (void)
 
 TLM922Sがコマンド入力受付状態にあるかを調べ、可能なら真を返す。
 具体的には "\r" を送信して、PS_READY が直ちに返却されれば真とみなす。
@@ -258,11 +258,11 @@ TLM922Sがコマンド入力受付状態にあるかを調べ、可能なら真�
 while (!LoRaWAN.getReady());    // PS_READY
 ```
 
-### コントローラモジュールメソッド
+## コントローラモジュールメソッド
 
 TLM922Sの mod で始まるコマンド群を操作する。
 
-#### bool factoryReset (void)
+### bool factoryReset (void)
 
 TLM922Sを工場出荷時設定に戻す。
 コマンド送信に成功すると真を返す。（==PS_OK）
@@ -275,7 +275,7 @@ if (LoRaWAN.factoryReset()) {
 
 TLM922Sの Region設定は firmware固有の初期値で初期化される。
 
-#### bool reset (void)
+### bool reset (void)
 
 TLM922Sをリセットする。
 成功すると TLM922Sは起動文字列（PS_MODRESET）を返すので、これを検出して真を返す。
@@ -286,7 +286,7 @@ if (LoRaWAN.reset()) {
 }
 ```
 
-#### bool getVersion (void)
+### bool getVersion (void)
 
 TLM922Sから最大 32byteのファームウェアバージョン文字列を取得する。
 成功すると真を返し、getData() で文字列を取得できる。
@@ -299,7 +299,7 @@ if (LoRaWAN.getVersion() &&
 }
 ```
 
-#### bool getDevEUI (void)
+### bool getDevEUI (void)
 
 TLM922Sから devEUI を取得する。
 成功すると真を返し、getData() で 16文字の文字列を取得できる。
@@ -315,7 +315,7 @@ if (LoRaWAN.getDevEUI() &&
 devEUI値は、OTAAモードで joinするために必須のデバイス固有値である。
 同じ値をゲートウェイが事前に知らなければ、LoRaWAN通信は開始できない。
 
-#### bool sleep (uint16\_t SECONDS)
+### bool sleep (uint16\_t SECONDS)
 
 TLM922Sをディープスリープモードにする。
 スリープ時間には 1～65535秒と、0==無制限が指定できる。
@@ -407,7 +407,7 @@ if (LoRaWAN.sleep(60)) {
 電力不足・規定電圧不足の時に本メソッドを実行すると、
 まれに失敗してハードリセットがかかることがある。
 
-#### bool wakeUp (void)
+### bool wakeUp (void)
 
 TLM922Sのスリープが解除されたかを確認する。
 スリープそのものを解除するわけではない。
@@ -418,7 +418,7 @@ TLM922Sのスリープが解除されたかを確認する。
 このメソッドはそれを検出する。
 （要するに応答を返しきる前に寝てしまう）
 
-#### void setBaudRate (long SPEED)
+### void setBaudRate (long SPEED)
 
 TLM922Sに通信ボーレート変更コマンドを送る。
 コマンドが正常実行された時点で UART通信が切れてしまうため、このメソッドには返値がない。
@@ -440,7 +440,7 @@ while (!LoRaWAN.getReady());    // PS_READY
 特に高速な値ほど誤差が拡大する。
 このため規定値の 9600bpsから変更しないほうが障害になりにくい。
 
-#### bool setEcho (bool ECHO\_MODE)
+### bool setEcho (bool ECHO\_MODE)
 
 TLM922Sのエコーバック応答を設定する。
 規定値は ECHO_ON である。
@@ -454,7 +454,7 @@ LoRaWAN.setEcho(ECHO_OFF);       // エコーバック停止
 得られたエコーバックをコンソールに送るかは setEchoThrough() で別に設定する。
 両方を ECHO_ON にしなければ、コンソールには何も表示されない。
 
-#### bool modSave (void)
+### bool modSave (void)
 
 TLM922Sの不揮発メモリに、setBaudRate() と setEcho() の設定値を保存させる。
 保存された設定は reset() および電源 ON/OFFしても維持される。
@@ -468,11 +468,11 @@ if (LoRaWAN.modSave()) Serial.println("mod save ok");
 まれに失敗してハードリセットがかかることがある。
 この場合の保存可否については保証されない（普通は失敗している）
 
-### ラジオモジュールメソッド
+## ラジオモジュールメソッド
 
 TLM922Sの lorawan で始まるコマンド群を操作する。
 
-#### bool setDataRate (uint8\_t DATARATE)
+### bool setDataRate (uint8\_t DATARATE)
 
 TLM922Sに DR値を設定する。
 成功すると真を返す（==PS_OK）
@@ -481,13 +481,13 @@ TLM922Sに DR値を設定する。
 LoRaWAN.setDataRate(2);
 ```
 
-#### int8_t getDataRate (void)
+### int8_t getDataRate (void)
 
 TLM922Sから現在設定されている DR値を取得する。
 返値は 0から 6の整数である。
 取得に失敗すると -1 が返る。
 
-#### int16_t getMaxPayloadSize (int8\_t DATARATE)
+### int16_t getMaxPayloadSize (int8\_t DATARATE)
 
 TLM922Sに指定の DR値で送受信可能な最大ペイロードサイズを問い合わせる。
 返値は 0から 242の整数で、単位は byteである。
@@ -536,7 +536,7 @@ DR6は送信に同時に2チャンネル分の帯域を使うことでビット�
 ヘッダを含めた最大長が 255byteなので転送能力は DR5と変わらない。
 外乱の影響を強く受けやすいこともあり、実験的な方式といえる。
 
-#### bool getAdr (void)
+### bool getAdr (void)
 
 TLM922Sに設定された現在の Adaptive Data Rate スケジュール（ADRモード）設定を問い合わせる。
 結果が PS_ONなら真を返す。
@@ -545,7 +545,7 @@ TLM922Sに設定された現在の Adaptive Data Rate スケジュール（ADR�
 if (LoRaWAN.getAdr()) Serial.println("lorawan get_adr on");
 ```
 
-#### bool setAdr (bool ADR\_MODE)
+### bool setAdr (bool ADR\_MODE)
 
 TLM922Sに Adaptive Data Rate スケジュール（ADRモード）の使用を指示する。
 成功すれば真を返す（==PS_OK）
@@ -564,7 +564,7 @@ ADR_ON は非移動体通信でかつ ABP_ON と併用するのが望ましい�
 移動体通信で ADRを用いると、通信不能になることがある。
 （ADR_OFF にし setDataRate() で DR値を再設定すれば回復する）
 
-#### bool loraSave (void)
+### bool loraSave (void)
 
 TLM922Sの不揮発メモリに、setDataRate() と setAdr() の設定値を保存させる。
 保存された設定は reset() および電源 ON/OFFしても維持される。
@@ -578,7 +578,7 @@ if (LoRaWAN.loraSave()) Serial.println("lorawan save ok");
 まれに失敗してハードリセットがかかることがある。
 この場合の保存可否については保証されない（普通は失敗している）
 
-#### bool join (bool JOIN\_MODE)
+### bool join (bool JOIN\_MODE)
 
 TLM922Sに指定のモードで、joinリクエストの発行を指示する。
 第1プロンプトが PS_OK であれば真が返り、joinResult() を実行することができる。
@@ -613,7 +613,7 @@ getResult() の返値は以下の通り。
 電力不足・規定電圧不足の時に本メソッドを実行すると、
 まれに失敗してハードリセットがかかることがある。
 
-#### bool joinResult (void)
+### bool joinResult (void)
 
 TLM922Sに指示した joinコマンドの、実行結果を受け取る。
 第2プロンプトが PS_ACCEPTED であれば真が返る。
@@ -934,7 +934,7 @@ for (int i = 0; i <= 15; i++) {
 }
 ```
 
-#### bool getAppsKey (void)
+### bool getAppsKey (void)
 
 TLM922Sから アプリケーションキー を取得する。
 成功すると真を返し、getData() で文字列を取得できる。
