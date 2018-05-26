@@ -934,7 +934,7 @@ for (int i = 0; i <= 15; i++) {
 }
 ```
 
-### bool getAppsKey (void)
+### bool getAllKey (void)
 
 TLM922Sから アプリケーションキー を取得する。
 成功すると真を返し、getData() で文字列を取得できる。
