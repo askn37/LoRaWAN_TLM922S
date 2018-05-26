@@ -140,6 +140,15 @@ MultiUART は TIMER1 または TIMER2 の何れかを必要とする。
 SoftwareSerial は ISR(PCINTn_vect) をすべて占有し、
 受信バッファはひとつである。
 
+### LoRaWAN_TLM922S (HardwareSerial*)
+
+（MultiUARTを継承している場合）ハードウェアシリアルを選択してコンストラクタを呼ぶ。
+
+```c
+LoRaWAN_TLM922S LoRaWAN(Serial1);
+LoRaWAN.begin(115200);
+```
+
 ### operator bool (void)
 
 真偽値として評価された場合、通信準備ができているかを返す。
@@ -950,7 +959,6 @@ if (LoRaWAN.getAllKey() &&
 このメソッドは大量のメモリと
 MCU処理能力を要求するため全部が読めなかったり、
 途中が欠損していることがある。
-MultiUARTを選択した場合は setRxBuffer() を使って回避できるかもしれない。
 
 得られる情報は、空白区切りの 7種の HEX文字列である。
 
