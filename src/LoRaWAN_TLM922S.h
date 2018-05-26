@@ -128,11 +128,10 @@ public:
 
     inline bool setLinkCheck (void) { return runCommand(EX_LORA_SET_LINK); }
     inline bool tx (bool confirm, uint8_t fport, char* data) {
-        tx(confirm, fport);
-        txData(data);
-        return txRequest();
+        return ( tx(confirm, fport) && txData(data) && txRequest() );
     }
     bool tx (bool, uint8_t);
+    inline bool txData (String str) { return this->super::print(str); }
     inline bool txData (char* str) { return this->super::write(str); }
     inline bool txData (const char* str) { return this->super::write(str); }
     inline bool txData (char* str, int len) { return this->super::write(str, len); }
