@@ -131,17 +131,15 @@ public:
         return ( tx(confirm, fport) && txData(data) && txRequest() );
     }
     bool tx (bool, uint8_t);
-    inline bool txData (char* str) { return this->super::write(str); }
-    inline bool txData (const char* str) { return this->super::write(str); }
-    inline bool txData (char* str, int len) { return this->super::write(str, len); }
-    inline bool txData (char c) { return this->super::write(c); };
+    inline bool txData (char v) { return txData((uint32_t)(v), 2); }
     inline bool txData (uint8_t v) { return txData((uint32_t)(v), 2); }
     inline bool txData (int v) { return txData((uint32_t)(v), 4); }
     inline bool txData (uint16_t v) { return txData((uint32_t)(v), 4); }
     inline bool txData (long v) { return txData((uint32_t)(v), 8); }
     inline bool txData (uint32_t v) { return txData((uint32_t)(v), 8); }
-    bool txBinData (String);
     bool txData (uint32_t, int);
+    bool txData (String);
+    bool txData (const char*, int);
     bool txRequest (void);
     inline bool txRequest(bool c, uint8_t f, char* s) { return tx(c, f, s); }
     bool txResult (void);

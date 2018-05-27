@@ -716,33 +716,18 @@ TX_CNF はゲートウェイ／サーバに ACKダウンリンクを要求し、
 FPORTには任意のアプリケーションポート番号を指定する。
 指定可能範囲は 1から 223で、それ以外は何らかの内部機能が割り当てられている予約番号である。
 
-### bool txData (char* HEXSTRING)
+### size_t write (char HEX)
+### size_t write (char* HEX)
+### size_t write (char* HEX, int LEN)
+### size_t print (String HEX)
 
-TLM922Sへ C文字列ペイロードデータを直接送る。
-常に真を返す。
+TLM922Sへ、指定の文字、文字列を無変換でそのまま送る。
+これらのほか、通常の UARTメソッドはすべて使用できる。
+（が、直接ターミナル操作目的でないかぎりあまり有用ではない）
 
-このメソッドは write(char* str) メソッドと等価である。
-書き込むデータは HEX文字列でなければならない。
+"\n" は正しく認識されないため、println() は使うべきではない。
 
-### bool txData (char* HEXSTRING, int BYTELENGTH)
-
-TLM922Sへ C文字列ペイロードデータを指定キャラクタ数、直接無変換で送る。
-常に真を返す。
-
-このメソッドは write(char* str, int len) メソッドと等価である。
-書き込むデータは HEX文字列でなければならない。
-
-### bool txData (signed char HEXCHAR)
-
-TLM922Sへ、1キャラクタを直接無変換で送る。
-常に真を返す。
-
-このメソッドは write(char character) メソッドと等価である。
-書き込むデータは HEX文字列でなければならない。
-
-型cast に注意すること。
-曖昧さを避けるには txData(uint32\_t VALUE, NIBBLE) を使うこと。
-
+### bool txData (char HEXCHAR)
 ### bool txData (uint8\_t VALUE)
 
 TLM922Sへ、8bitの整数を HEX文字列 2byte（bigendian）に変換して送る。
@@ -787,18 +772,27 @@ txData(value, 7);	// "12345678"
 txData(value, 8);	// "012345678"  == txData((uint32_t) value);
 ```
 
-### bool txBinData (String STRING)
+### bool txData (const char* HEXSTRING, int BYTELENGTH)
+
+TLM922Sへ 指定した長さの キャラクタ配列ペイロードデータを、HEX文字列に変換して送る。
+キャラクタ配列には null文字 "\0" を含めることもできる。
+常に真を返す。
+
+```c
+char str = "\x00\x01";
+txData(str, 2);     // "0001" が送られる
+```
+
+### bool txData (String STRING)
 
 TLM922Sへ String型 "バイナリ" ペイロードデータを HEX文字列に変換して送る。
+ペイロードに null文字 "\0" を含めることはできない。
 常に真を返す。
-txData(char* HEXSTRING) とは動作が異なるので注意。
 
 ```c
 String str = "AB";
-txBinData(str);    // "4142" が送られる
+txData(str);        // "4142" が送られる
 ```
-
-なお null文字が含まれるとそれ以後は正しく送信されない。
 
 ### bool txRequest (void)
 

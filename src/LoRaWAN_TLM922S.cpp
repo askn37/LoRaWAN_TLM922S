@@ -439,10 +439,17 @@ bool LoRaWAN_TLM922S::txData (uint32_t value, int nibble) {
 
 // tx送信データ
 // String型をビッグエンディアン HEXDIGIT で送る
-bool LoRaWAN_TLM922S::txBinData (String str) {
+bool LoRaWAN_TLM922S::txData (String str) {
     for (auto c : str) {
         this->super::print(c >> 4, HEX);
         this->super::print(c & 15, HEX);
+    }
+    return true;
+}
+bool LoRaWAN_TLM922S::txData (const char* str, int len) {
+    for (int i = 0; i < len; i++) {
+        this->super::print((uint8_t)str[i] >> 4, HEX);
+        this->super::print((uint8_t)str[i] & 15, HEX);
     }
     return true;
 }

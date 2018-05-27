@@ -10,7 +10,6 @@
  */
 
 #define MULTIUART_BASEFREQ 76800
-#define BAUDRATE_THROTTLE 1009
 
 #include <Arduino.h>
 #include <LoRaWAN_TLM922S.h>
@@ -25,18 +24,16 @@ LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
 
 uint32_t baudrateLists[] = {38400, 28800, 19200, 9600};
 
+volatile char buffer[256];
 void setup (void) {
+
     pinMode(WAKE_PIN, OUTPUT);
     digitalWrite(WAKE_PIN, HIGH);
 
     Serial.begin(CONSOLE_BAUD);
     Serial.println(F("Startup"));
-
-    LoRaWAN_TLM922S::setThrottle(BAUDRATE_THROTTLE);
-    LoRaWAN.setEchoThrough(ECHO_ON);
-    delay(2000);
-
     for (auto baudrate : baudrateLists) {
+        delay(1000);
         Serial.println();
         Serial.print(F("Baudrate: "));
         Serial.println(baudrate);
@@ -50,11 +47,33 @@ void setup (void) {
         else {
             Serial.println(F("  =failed, unmatch baudrate"));
         }
-        delay(1000);
     }
+    Serial.println();
 
+    LoRaWAN.setEcho(ECHO_OFF);
     LoRaWAN.getVersion();
-    LoRaWAN.getDevEUI();
+    Serial.print(F("Version: ")); Serial.println(LoRaWAN.getData());
+
+    LoRaWAN.setRxBuffer(buffer, 256);
+    LoRaWAN.getAllKey();
+    LoRaWAN.setRxBuffer();
+
+    String text[7];
+    int idx = 0;
+    for (auto c : LoRaWAN.getData()) {
+        if (c == ' ' || text[idx].length() == 32) {
+            idx++;
+            continue;
+        }
+        text[idx] += c;
+    }
+    Serial.print(F("DevAddr: ")); Serial.println(text[0]);
+    Serial.print(F("   UUID: ")); Serial.println(text[1]);
+    Serial.print(F(" DevEUI: ")); Serial.println(text[2]);
+    Serial.print(F(" AppEUI: ")); Serial.println(text[3]);
+    Serial.print(F(" AppKey: ")); Serial.println(text[4]);
+    Serial.print(F("NwkSKey: ")); Serial.println(text[5]);
+    Serial.print(F("AppSKey: ")); Serial.println(text[6]);
 }
 
 void loop (void) {}

@@ -70,18 +70,11 @@ void setup (void) {
     }
     printResult();
 
-    // リセットコマンドを試す
+    // 工場出荷時リセットを試す
     // 成功すれば真
-    f = LoRaWAN.reset();
-    Serial.print(F("=reset:")); Serial.println(f);
+    f = LoRaWAN.factoryReset();
+    Serial.print(F("=factoryReset:")); Serial.println(f);
     printResult();
-
-    // // ボーレート設定を試す
-    // // 結果は得られないが
-    // // 実行後は wakeUp()を使う
-    // LoRaWAN.setBaudRate(LORAWAN_BAUD);
-    // LoRaWAN.begin(LORAWAN_BAUD);
-    // LoRaWAN.wakeUp();
 
     // ファームウェアバージョン文字列取得
     // 成功すれば真
@@ -111,53 +104,11 @@ void setup (void) {
         }
     }
 
-    // 現在の（以前のjoinの）DevAddr文字列取得
-    // 成功すれば真
-    f = LoRaWAN.getDevAddr();
-    Serial.print(F("=getDevAddr:")); Serial.println(f);
-    printResult();
-    if (LoRaWAN.isData()) {
-        Serial.print(F("=getData:["));
-        Serial.print(LoRaWAN.getData());
-        Serial.println(']');
-    }
-
-    // joinの前に、工場出荷時リセットを試す
-    // 成功すれば真
-    f = LoRaWAN.factoryReset();
-    Serial.print(F("=factoryReset:")); Serial.println(f);
-    printResult();
-
-    // // エコーバック無効化（ON=工場出荷時デフォルト）
-    // // 成功すれば真
-    // f = LoRaWAN.setEcho(ECHO_OFF);
-    // Serial.print(F("=setEcho:")); Serial.println(f);
-    // printResult();
-    // LoRaWAN.setEchoThrough(ECHO_OFF);
-
-    // // EEPROMに保存されたAppsKey文字列取得（メモリを大量に使う）
-    // // 成功すれば真
-    // f = LoRaWAN.getAllKey();
-    // Serial.print(F("=getAllKey:")); Serial.println(f);
-    // printResult();
-    // if (LoRaWAN.isData()) {
-    //     Serial.print(F("=getData:["));
-    //     Serial.print(LoRaWAN.getData());
-    //     Serial.println(']');
-    // }
-
-    // // エコーバック有効化（ON=工場出荷時デフォルト）
-    // // 成功すれば真
-    // f = LoRaWAN.setEcho(ECHO_ON);
-    // Serial.print(F("=setEcho:")); Serial.println(f);
-    // printResult();
-    // LoRaWAN.setEchoThrough(ECHO_ON);
-
     // joinが成功するまでループ
     do {
         if (!f) delay(2000);
 
-        // OTAAでjoinする
+        // joinする
         // 第1プロンプト結果が Okなら真
         f = LoRaWAN.join(SET_JOIN);
         Serial.print(F("=join:")); Serial.println(f);
@@ -170,7 +121,7 @@ void setup (void) {
         printResult();
     } while (!f);
 
-    // join後のDevAddr文字列取得（成功すれば以前と変わっている）
+    // join後のDevAddr文字列取得（OTAAで成功すれば以前と変わっている）
     // 成功すれば真
     f = LoRaWAN.getDevAddr();
     Serial.print(F("=getDevAddr:")); Serial.println(f);
@@ -228,13 +179,13 @@ void loop (void) {
     printResult();
 
     // 送信データを準備する
-    LoRaWAN.txData("cafe");     // HEXDATA直書き これは LoRaWAN.write("cafe") と同じ
-    LoRaWAN.txData(micros());   // uint32_t型をHEX 8桁で準備
+    LoRaWAN.write("cafe");          // HEXDATA直書き
+    LoRaWAN.txData("\x00\x01", 2);  // null文字含む Binary渡し
+    LoRaWAN.txData(micros());       // uint32_t型をHEX 8桁で準備
 
     // 送信を実行
     // 第1プロンプト結果が Okなら真
     f = LoRaWAN.txRequest();
-    delay(1000);
     Serial.print(F("=tx:")); Serial.println(f);
     printResult();
     if (f) {
