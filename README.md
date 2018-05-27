@@ -43,7 +43,7 @@ TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装であ
 
 	[MultiUART](https://github.com/askn37/MultiUART) -- SoftwareSerial で代用も可能（後述）
 
-## 手っ取り早く使ってみる
+## とっかかり
 
 ```c
 #include <Arduino.h>
