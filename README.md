@@ -716,10 +716,10 @@ TX_CNF はゲートウェイ／サーバに ACKダウンリンクを要求し、
 FPORTには任意のアプリケーションポート番号を指定する。
 指定可能範囲は 1から 223で、それ以外は何らかの内部機能が割り当てられている予約番号である。
 
-### size_t write (char HEX)
-### size_t write (char* HEX)
-### size_t write (char* HEX, int LEN)
-### size_t print (String HEX)
+### size_t write (char VALUE)
+### size_t write (char* STRING)
+### size_t write (char* STRING, int LEN)
+### size_t print (String STRING)
 
 TLM922Sへ、指定の文字、文字列を無変換でそのまま送る。
 これらのほか、通常の UARTメソッドはすべて使用できる。
@@ -727,7 +727,7 @@ TLM922Sへ、指定の文字、文字列を無変換でそのまま送る。
 
 "\n" は正しく認識されないため、println() は使うべきではない。
 
-### bool txData (char HEXCHAR)
+### bool txData (char VALUE)
 ### bool txData (uint8\_t VALUE)
 
 TLM922Sへ、8bitの整数を HEX文字列 2byte（bigendian）に変換して送る。
@@ -772,7 +772,7 @@ txData(value, 7);	// "12345678"
 txData(value, 8);	// "012345678"  == txData((uint32_t) value);
 ```
 
-### bool txData (const char* HEXSTRING, int BYTELENGTH)
+### bool txData (const char* ARRAY, int LENGTH)
 
 TLM922Sへ 指定した長さの キャラクタ配列ペイロードデータを、HEX文字列に変換して送る。
 キャラクタ配列には null文字 "\0" を含めることもできる。
