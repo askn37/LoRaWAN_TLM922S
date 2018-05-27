@@ -819,18 +819,18 @@ txData() で組み立てたペイロードデータがHEX文字列でない、
 電力不足・規定電圧不足の時に本メソッドを実行すると、
 まれに失敗してハードリセットがかかることがある。
 
-### bool tx (bool TX_MODE, uint8_t FPORT, char* DATA)
-### bool txRequest (bool TX_MODE, uint8_t FPORT, char* DATA)
+### bool tx (bool TX_MODE, uint8_t FPORT, String DATA)
+### bool txRequest (bool TX_MODE, uint8_t FPORT, String DATA)
 
 この二つのメソッドはいずれも以下の三つ組メソッドと等価のショートカットである。
 返値は txRequest() を参照のこと。
 
 ```c
-// char data[] = "0123456789abcdef";
+// String data = "0123456789abcdef";
 return ( tx(confirm, fport) && txData(data) && txRequest() );
 ```
 
-送信するペイロードデータは、HEX文字列に変換済でなければならない。
+送信するペイロードデータは、HEX文字列に変換されて送られる。
 
 ### bool txResult (void)
 

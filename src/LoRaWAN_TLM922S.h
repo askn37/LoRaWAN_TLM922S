@@ -127,7 +127,7 @@ public:
     inline uint32_t getDownCount (void) { return getValueCommand(EX_LORA_GET_DWCNT); }
 
     inline bool setLinkCheck (void) { return runCommand(EX_LORA_SET_LINK); }
-    inline bool tx (bool confirm, uint8_t fport, char* data) {
+    inline bool tx (bool confirm, uint8_t fport, String data) {
         return ( tx(confirm, fport) && txData(data) && txRequest() );
     }
     bool tx (bool, uint8_t);
@@ -141,7 +141,7 @@ public:
     bool txData (String);
     bool txData (const char*, int);
     bool txRequest (void);
-    inline bool txRequest(bool c, uint8_t f, char* s) { return tx(c, f, s); }
+    inline bool txRequest(bool c, uint8_t f, String s) { return tx(c, f, s); }
     bool txResult (void);
 
     inline bool isLinkCheck (void) { return (_margin >= 0 && _gateways > 0); }
