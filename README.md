@@ -765,11 +765,11 @@ uint32_t value = 0x12345678;
 txData(value, 1);	// "8"
 txData(value, 2);	// "78"         == txData((uint8_t) value);
 txData(value, 3);	// "678"
-txData(value, 4);	// "45678"      == txData((uint16_t) value);
-txData(value, 5);	// "345678"
-txData(value, 6);	// "2345678"
-txData(value, 7);	// "12345678"
-txData(value, 8);	// "012345678"  == txData((uint32_t) value);
+txData(value, 4);	// "5678"       == txData((uint16_t) value);
+txData(value, 5);	// "45678"
+txData(value, 6);	// "345678"
+txData(value, 7);	// "2345678"
+txData(value, 8);	// "12345678"   == txData((uint32_t) value);
 ```
 
 ### bool txData (const char* ARRAY, int LENGTH)
