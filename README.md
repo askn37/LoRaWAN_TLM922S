@@ -904,9 +904,6 @@ int32_t valueInt = LoRaWAN.getValue();
 ### uint8_t isData (void)
 
 TLM922Sから文字列データが取得されているを調べる。
-返されるのは保持しているキャラクタ数で、最大値は 242 byteである。
-
-txResult() で rxダウンリンクペイロードが受信されている場合は真を返す。
 
 ### String getData (void)
 
@@ -918,10 +915,25 @@ if (LoRaWAN.isData()) {
 }
 ```
 
+### uint8_t isRxData (void)
+
+TLM922Sからrxペイロードデータが取得されているならその文字数を返す。
+返されるのは保持しているキャラクタ数で、最大値は 242 byteである。
+
+txResult() で rxダウンリンクペイロードが受信されている場合は真を返す。
+
+### char *getRxData (void)
+
+TLM922Sから取得したrxペイロードデータを 文字列ポインタ型で返す。
+
 txResult() で rxダウンリンクペイロードが受信されている場合は、
 このメソッドで rxペイロードデータが得られる。
 TLM922Sからは HEXDATAが送られてくるが、
 このメソッドでは Binary変換されたデータを返す。
+
+最大 242byteのペイロードデータは malloc() で確保したメモリ空間に保持するため、
+malloc() に失敗した場合は取得されない。
+またその有効期間は次に何らかのコマンドを発行するまでである。
 
 ### tlmps_t nextPrompt (uint16_t MS)
 
@@ -1155,7 +1167,8 @@ LoRaWAN はそのなかへほそいキリをえぐりこむかのような手段
 
 ## 改版履歴
 
-- 0.1.1
+- 0.1.2
+  - isRxData() getRxData() を分離実装。
 
 ## 使用許諾
 

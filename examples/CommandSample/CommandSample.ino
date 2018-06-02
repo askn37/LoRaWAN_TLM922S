@@ -204,12 +204,12 @@ void loop (void) {
         }
 
         // rxダウンリンクデータが得られたなら真
-        Serial.print(F("=isData:")); Serial.println(LoRaWAN.isData());
-        if (LoRaWAN.isData()) {
+        Serial.print(F("=isRxData:")); Serial.println(LoRaWAN.isRxData());
+        if (LoRaWAN.isRxData()) {
             // rxポート番号とバイナリデータを取得
             Serial.print(F("=getRxPort:")); Serial.println(LoRaWAN.getRxPort());
-            Serial.print(F("=getData:["));
-            Serial.print(LoRaWAN.getData());    // HEXからBINに変換済
+            Serial.print(F("=getRxData:["));
+            Serial.write(LoRaWAN.getRxData(), LoRaWAN.isRxData());
             Serial.println(']');
         }
     }

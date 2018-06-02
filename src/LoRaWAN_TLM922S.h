@@ -55,8 +55,10 @@
 //
 class LoRaWAN_TLM922S : public LORAWAN_TLM922S_SERIAL {
 private:
-    String _echoBack;       // エコーバックバッファヒープ
-    String _rxData;         // Downlinkデータストアヒープ
+    String _echoBack;           // エコーバックバッファヒープ
+    String _terminal;           // ターミナルストアヒープ
+    char *_rxData = nullptr;    // Downlinkデータストアヒープ
+    int _rxDataLen = 0;
     int32_t _value;
     uint8_t _current;
     uint8_t _result;
@@ -72,7 +74,7 @@ private:
     void putEchoBack (void) { if (_echo) LORAWAN_TLM922S_DEBUG.print(_echoBack); clearEchoBack(); }
 
     bool wait(uint16_t = 0);
-    tlmps_t skipPrompt (uint8_t = PS_READY, uint8_t = PS_READY, uint16_t = 100);
+    tlmps_t skipPrompt (uint8_t = PS_READY, uint8_t = PS_READY, uint16_t = 1000);
     bool runCommand (uint8_t, uint16_t = 1000);
     bool runBoolCommand (uint8_t, uint16_t = 1000);
     bool getStringCommand (uint8_t, uint16_t = 1000);
@@ -94,8 +96,10 @@ public:
     bool getReady (void);
     tlmps_t nextPrompt (uint16_t = 100);
     inline int32_t getValue (void) { return _value; }
-    inline String getData (void) { return _rxData; }
-    inline uint8_t isData (void) { return _rxData.length(); }
+    inline String getData (void) { return _terminal; }
+    inline char *getRxData (void) { return _rxData; }
+    inline uint8_t isData (void) { return _terminal.length(); }
+    inline uint8_t isRxData (void) { return (_rxData && _rxDataLen ? _rxDataLen : 0); }
 
     // controler module method
 
