@@ -41,7 +41,7 @@ TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装であ
 
 3. 依存関係があるライブラリも同様に読み込む
 
-	[MultiUART](https://github.com/askn37/MultiUART) -- SoftwareSerial で代用も可能（後述）
+	[MultiUART](https://github.com/askn37/MultiUART)
 
 ## とっかかり
 
@@ -122,23 +122,6 @@ LoRaWAN.begin(9600);
 auto LoRaWAN = new LoRaWAN_TLM922S(RX_PIN, TX_PIN);
 LoRaWAN->begin(9600);
 ```
-
-本クラスは、規定値では [MultiUART](https://github.com/askn37/MultiUART) クラスを継承している。
-これを SoftwareSerial に変えるには、
-LoRaWAN_TLM922S.h ヘッダファイル内の以下の定義を変更する。
-
-```c
-//
-// 継承するシリアルクラスを選択（MultiUART or SoftwareSerial）
-//
-#define LORAWAN_TLM922S_USED_MULTIUART
-// #define LORAWAN_TLM922S_USED_SOFTWARESERIAL
-```
-
-どちらを選ぶべきかは導入したいアプリケーションによる。
-MultiUART は TIMER1 または TIMER2 の何れかを必要とする。
-SoftwareSerial は ISR(PCINTn_vect) をすべて占有し、
-受信バッファはひとつである。
 
 ### LoRaWAN_TLM922S (HardwareSerial*)
 

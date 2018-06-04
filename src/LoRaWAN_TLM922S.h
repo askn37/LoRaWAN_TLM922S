@@ -25,17 +25,15 @@
 //
 // 継承するシリアルクラスを選択（MultiUART or SoftwareSerial）
 //
-#define LORAWAN_TLM922S_USED_MULTIUART
 // #define LORAWAN_TLM922S_USED_SOFTWARESERIAL
 
-#if defined(LORAWAN_TLM922S_USED_MULTIUART)
-    #include <MultiUART.h>
-    #define LORAWAN_TLM922S_SERIAL MultiUART
-#elif defined(LORAWAN_TLM922S_USED_SOFTWARESERIAL)
+#ifdef LORAWAN_TLM922S_USED_SOFTWARESERIAL
     #include <SoftwareSerial.h>
     #define LORAWAN_TLM922S_SERIAL SoftwareSerial
 #else
-    #error no defined base class LORAWAN_TLM922S_USED_XXXX
+    #include <MultiUART.h>
+    #define LORAWAN_TLM922S_USED_MULTIUART
+    #define LORAWAN_TLM922S_SERIAL MultiUART
 #endif
 
 //
@@ -55,10 +53,10 @@
 //
 class LoRaWAN_TLM922S : public LORAWAN_TLM922S_SERIAL {
 private:
-    String _echoBack;           // エコーバックバッファヒープ
-    String _terminal;           // ターミナルストアヒープ
-    char *_rxData = nullptr;    // Downlinkデータストアヒープ
-    int _rxDataLen = 0;
+    String _echoBack;               // エコーバックバッファヒープ
+    String _terminal;               // ターミナルストアヒープ
+    uint8_t *_rxData = nullptr;     // Downlinkデータストアヒープ
+    uint8_t _rxDataLen = 0;
     int32_t _value;
     uint8_t _current;
     uint8_t _result;
@@ -97,7 +95,7 @@ public:
     tlmps_t nextPrompt (uint16_t = 100);
     inline int32_t getValue (void) { return _value; }
     inline String getData (void) { return _terminal; }
-    inline char *getRxData (void) { return _rxData; }
+    inline uint8_t *getRxData (void) { return _rxData; }
     inline uint8_t isData (void) { return _terminal.length(); }
     inline uint8_t isRxData (void) { return (_rxData && _rxDataLen ? _rxDataLen : 0); }
 

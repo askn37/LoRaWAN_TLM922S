@@ -219,13 +219,12 @@ void LoRaWAN_TLM922S::parseHexData (void) {
         if (this->super::available()) {
             uint8_t c = this->super::peek();
             if (isHexadecimalDigit(c)) {
-                if (c >= 'a') c -= 39;
-                else if (c >= 'A') c -= 7;
                 c -= '0';
-                if ((++recv) & 1)
-                    x = c << 4;
-                else if (_rxDataLen < 242)
-                    _rxData[_rxDataLen++] = (char)(x | c);
+                if (c >= 17) c -= 7;
+                if (c >= 42) c -= 32;
+                c &= 15;
+                if ((++recv) & 1)          x = c << 4;
+                else if (_rxDataLen < 242) _rxData[_rxDataLen++] = x | c;
             }
             else break;
             this->super::read();
@@ -306,10 +305,10 @@ size_t LoRaWAN_TLM922S::write (const uint8_t c) {
 
 // write時のエコーバックを有効・無効にする
 void LoRaWAN_TLM922S::setEchoThrough (bool through) {
-#ifdef LORAWAN_TLM922S_USED_MULTIUART
+    #ifdef LORAWAN_TLM922S_USED_MULTIUART
     if (through) super::setWriteBack(&LoRaWAN_TLM922S::echoback);
     else super::setWriteBack(&LoRaWAN_TLM922S::echobackDrop);
-#endif
+    #endif
     _echo = through;
 }
 
@@ -499,7 +498,7 @@ bool LoRaWAN_TLM922S::txResult (void) {
                         void *ptr = malloc(242);
                         if (ptr != nullptr) {
                             _rxDataLen = 0;
-                            _rxData = (char*) ptr;
+                            _rxData = (uint8_t*) ptr;
                             _rxPort = parseDecimal();
                             parseHexData();
                         }
