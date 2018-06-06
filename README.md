@@ -1,4 +1,4 @@
-# LoRaWAN_TLM922S
+# LoRaWAN\_TLM922S
 
 Kiwi Technology TLM922S-P01A LoRaWAN Module シリーズのための実装（for Arduino IDE）
 
@@ -103,7 +103,7 @@ tx送信コマンドは、さらに tx() txData() txRequest() の三つ組のメ
 
 ## コンストラクタ
 
-### LoRaWAN_TLM922S (uint8\_t RX\_PIN, uint8\_t TX\_PIN)
+### LoRaWAN\_TLM922S (uint8\_t RX\_PIN, uint8\_t TX\_PIN)
 
 クラスオブジェクト生成にはこのコンストラクタを使用する。
 受信ピン、送信ピンの指定は必須である。
@@ -123,7 +123,7 @@ auto LoRaWAN = new LoRaWAN_TLM922S(RX_PIN, TX_PIN);
 LoRaWAN->begin(9600);
 ```
 
-### LoRaWAN_TLM922S (HardwareSerial*)
+### LoRaWAN\_TLM922S (HardwareSerial*)
 
 （MultiUARTを継承している場合）ハードウェアシリアルを選択してコンストラクタを呼ぶ。
 
@@ -172,7 +172,7 @@ Serial.begin() がまだ未実行のときにエコーバックがあると、
 Arduino はハングアップするだろう。
 
 Serial 以外を使用するには、
-LoRaWAN_TLM922S.h ヘッダファイル内の以下の定義を変更する。
+LoRaWAN\_TLM922S.h ヘッダファイル内の以下の定義を変更する。
 あるいはヘッダファイル読込前に、このプリプロセッサ変数を定義する。
 
 ```c
@@ -184,10 +184,10 @@ LoRaWAN_TLM922S.h ヘッダファイル内の以下の定義を変更する。
 #endif
 ```
 
-### tlmps_t getResult (void)
+### tlmps\_t getResult (void)
 
 最後の（最新の）TLM922S応答プロンプト文字列を、
-tlmps_t列挙型（整数）にして返す。
+tlmps\_t列挙型（整数）にして返す。
 
 ```c
 auto ps = LoRaWAN.getResult();
@@ -199,44 +199,44 @@ if (ps != PS_READY) {
 }
 ```
 
-tlmps_t の定義は以下の通り。
+tlmps\_t の定義は以下の通り。
 
 |定義値|メンバー名|種別|意味|対応プロンプト|
 |---:|:---|---|:---|:---|
-|0|PS_NOOP|制御|タイムアウト等||
-|1|PS_READY|制御|入力待ち|\r> |
-|2|PS_PREFIX|制御|パラメータ応答前置詞|\r>> |
-|3|PS_ENDRESET|制御|リセット完了| <\n|
-|4|PS_MODRESET|制御|再起動出力|\r> TLM922S <\n|
-|5|PS_DEMODMARG|制御|復調マージン応答前置詞|\r>> DemodMargin = |
-|6|PS_NBGATEWAYS|制御|ゲートウェイ応答前置詞|\r>> NbGateways = |
-|7|PS_RX|制御|rx受信データ前置詞|\r>> rx |
-|8|PS_OK|第1|コマンド受付完了|\r>> Ok|
+|0|PS\_NOOP|制御|タイムアウト等||
+|1|PS\_READY|制御|入力待ち|\r> |
+|2|PS\_PREFIX|制御|パラメータ応答前置詞|\r>> |
+|3|PS\_ENDRESET|制御|リセット完了| <\n|
+|4|PS\_MODRESET|制御|再起動出力|\r> TLM922S <\n|
+|5|PS\_DEMODMARG|制御|復調マージン応答前置詞|\r>> DemodMargin = |
+|6|PS\_NBGATEWAYS|制御|ゲートウェイ応答前置詞|\r>> NbGateways = |
+|7|PS\_RX|制御|rx受信データ前置詞|\r>> rx |
+|8|PS\_OK|第1|コマンド受付完了|\r>> Ok|
 |9|(未使用)||||
-|10|PS_TXOK|第2|tx完了|\r>> tx_ok|
-|11|PS_ACCEPTED|第2|join完了|\r>> accepted|
-|12|PS_JOINED|第1|join中|\r>> joined|
+|10|PS\_TXOK|第2|tx完了|\r>> tx\_ok|
+|11|PS\_ACCEPTED|第2|join完了|\r>> accepted|
+|12|PS\_JOINED|第1|join中|\r>> joined|
 |13|(未使用)||||
-|14|PS_ON|第1|設定有効|\r>> on|
-|15|PS_OFF|第1|設定無効|\r>> off|
-|16|PS_INVALID|第1|構文エラー|\r>> Invalid|
-|17|PS_UNKOWN|第1|不明なコマンド|\r>> Unknown command!|
-|18|PS_ERR|第2|送受信失敗|\r>> err|
-|19|PS_UNSUCCESS|第2|join失敗|\r>> unsuccess|
-|20|PS_UNJOINED|第1|非join中|\r>> unjoined|
-|21|PS_INVDLEN|第1|ペイロード長誤り|\r>> invalid_data_length|
-|22|PS_KEYNOTINIT|第2|SHAキー未初期化|\r>> keys_not_init|
-|23|PS_NOFREECH|第1|キャリアセンス失敗|\r>> no_free_ch|
-|24|PS_BUSY|第1|RF応答なし|\r>> busy|
-|25|PS_NOTJOINED|第1|join未実行|\r>> not_joined|
+|14|PS\_ON|第1|設定有効|\r>> on|
+|15|PS\_OFF|第1|設定無効|\r>> off|
+|16|PS\_INVALID|第1|構文エラー|\r>> Invalid|
+|17|PS\_UNKOWN|第1|不明なコマンド|\r>> Unknown command!|
+|18|PS\_ERR|第2|送受信失敗|\r>> err|
+|19|PS\_UNSUCCESS|第2|join失敗|\r>> unsuccess|
+|20|PS\_UNJOINED|第1|非join中|\r>> unjoined|
+|21|PS\_INVDLEN|第1|ペイロード長誤り|\r>> invalid\_data\_length|
+|22|PS\_KEYNOTINIT|第2|SHAキー未初期化|\r>> keys\_not\_init|
+|23|PS\_NOFREECH|第1|キャリアセンス失敗|\r>> no\_free\_ch|
+|24|PS\_BUSY|第1|RF応答なし|\r>> busy|
+|25|PS\_NOTJOINED|第1|join未実行|\r>> not\_joined|
 |26|(未使用)||||
 
 TLM922S の UARTは、改行区切りが "\n\r" になっていることには注意が必要。
 
-PS_MODRESET は部分文字列に PS_READY と PS_ENDRESET の両方を含んでいる特殊な応答である。
+PS\_MODRESET は部分文字列に PS\_READY と PS\_ENDRESET の両方を含んでいる特殊な応答である。
 状況によっては正常な解釈はできない。
 
-PS_RX は ClassA のダウンリンクでは PS_TXOKと常にセットで現れるが、
+PS\_RX は ClassA のダウンリンクでは PS\_TXOKと常にセットで現れるが、
 ClassB/ClassC ダウンリンクが発生した場合、
 あらゆる局面で UART通信に割り込んでくる可能性（いつ受信が発生するか不定）がある。
 検証が充分ではないため、本ライブラリでは現状 ClassB/ClassC は対応外とする。
@@ -244,7 +244,7 @@ ClassB/ClassC ダウンリンクが発生した場合、
 ### bool getReady (void)
 
 TLM922Sがコマンド入力受付状態にあるかを調べ、可能なら真を返す。
-具体的には "\r" を送信して、PS_READY が直ちに返却されれば真とみなす。
+具体的には "\r" を送信して、PS\_READY が直ちに返却されれば真とみなす。
 
 ```c
 while (!LoRaWAN.getReady());    // PS_READY
@@ -257,7 +257,7 @@ TLM922Sの mod で始まるコマンド群を操作する。
 ### bool factoryReset (void)
 
 TLM922Sを工場出荷時設定に戻す。
-コマンド送信に成功すると真を返す。（==PS_OK）
+コマンド送信に成功すると真を返す。（==PS\_OK）
 
 ```c
 if (LoRaWAN.factoryReset()) {
@@ -270,7 +270,7 @@ TLM922Sの Region設定は firmware固有の初期値で初期化される。
 ### bool reset (void)
 
 TLM922Sをリセットする。
-成功すると TLM922Sは起動文字列（PS_MODRESET）を返すので、これを検出して真を返す。
+成功すると TLM922Sは起動文字列（PS\_MODRESET）を返すので、これを検出して真を返す。
 
 ```c
 if (LoRaWAN.reset()) {
@@ -311,7 +311,7 @@ devEUI値は、OTAAモードで joinするために必須のデバイス固有�
 
 TLM922Sをディープスリープモードにする。
 スリープ時間には 1～65535秒と、0==無制限が指定できる。
-不正な値には偽を返し、PS_INVALID となる。
+不正な値には偽を返し、PS\_INVALID となる。
 
 このメソッドの実行前には、TLM922Sの D7/INT2ピンを LOWにしなければならない。
 スリープは指定時間を経るか、D7/INT2ピンを HIGHにすることで解除される。
@@ -403,10 +403,10 @@ if (LoRaWAN.sleep(60)) {
 
 TLM922Sのスリープが解除されたかを確認する。
 スリープそのものを解除するわけではない。
-成功すると真を返す（==PS_OK）
+成功すると真を返す（==PS\_OK）
 
 スリープが実行された瞬間にモジュールは停止するが、
-本来その前に返ってくるべき応答（PS_OK）はスリープ解除後に受信バッファへ送られてくる。
+本来その前に返ってくるべき応答（PS\_OK）はスリープ解除後に受信バッファへ送られてくる。
 このメソッドはそれを検出する。
 （要するに応答を返しきる前に寝てしまう）
 
@@ -426,7 +426,7 @@ while (!LoRaWAN.getReady());    // PS_READY
 28800、38400 は（マニュアルに記載がなく）使えない。
 しかし Arduino の SoftwareSerial（or MultiUART）を使用する限り、
 使用可能なのは事実上 9600 か 19200 に限られる。
-不正な値では PS_INVALID となる。
+不正な値では PS\_INVALID となる。
 
 実は、設定した値どおりのボーレートを正しく出力しないことがあり、数％の乱れが生じる。
 特に高速な値ほど誤差が拡大する。
@@ -435,8 +435,8 @@ while (!LoRaWAN.getReady());    // PS_READY
 ### bool setEcho (bool ECHO\_MODE)
 
 TLM922Sのエコーバック応答を設定する。
-規定値は ECHO_ON である。
-設定変更に成功すると真を返す（==PS_OK）
+規定値は ECHO\_ON である。
+設定変更に成功すると真を返す（==PS\_OK）
 
 ```c
 LoRaWAN.setEcho(ECHO_ON);        // エコーバック開始（初期値）
@@ -444,13 +444,13 @@ LoRaWAN.setEcho(ECHO_OFF);       // エコーバック停止
 ```
 
 得られたエコーバックをコンソールに送るかは setEchoThrough() で別に設定する。
-両方を ECHO_ON にしなければ、コンソールには何も表示されない。
+両方を ECHO\_ON にしなければ、コンソールには何も表示されない。
 
 ### bool modSave (void)
 
 TLM922Sの不揮発メモリに、setBaudRate() と setEcho() の設定値を保存させる。
 保存された設定は reset() および電源 ON/OFFしても維持される。
-保存に成功すると真を返す（==PS_OK）
+保存に成功すると真を返す（==PS\_OK）
 
 ```c
 if (LoRaWAN.modSave()) Serial.println("mod save ok");
@@ -473,13 +473,13 @@ TLM922Sに DR値を設定する。
 LoRaWAN.setDataRate(2);
 ```
 
-### int8_t getDataRate (void)
+### int8\_t getDataRate (void)
 
 TLM922Sから現在設定されている DR値を取得する。
 返値は 0から 6の整数である。
 取得に失敗すると -1 が返る。
 
-### int16_t getMaxPayloadSize (int8\_t DATARATE)
+### int16\_t getMaxPayloadSize (int8\_t DATARATE)
 
 TLM922Sに指定の DR値で送受信可能な最大ペイロードサイズを問い合わせる。
 返値は 0から 242の整数で、単位は byteである。
@@ -531,20 +531,20 @@ DR6は送信に同時に2チャンネル分の帯域を使うことでビット�
 ### bool getAdr (void)
 
 TLM922Sに設定された現在の Adaptive Data Rate スケジュール（ADRモード）設定を問い合わせる。
-結果が PS_ONなら真を返す。
+結果が PS\_ONなら真を返す。
 
 ```c
-if (LoRaWAN.getAdr()) Serial.println("lorawan get_adr on");
+if (LoRaWAN.getAdr()) Serial.println("lorawan get\_adr on");
 ```
 
 ### bool setAdr (bool ADR\_MODE)
 
 TLM922Sに Adaptive Data Rate スケジュール（ADRモード）の使用を指示する。
-成功すれば真を返す（==PS_OK）
+成功すれば真を返す（==PS\_OK）
 
 ```c
-LoRaWAN.setAdr(ADR_ON);		// ADRセット
-LoRaWAN.setAdr(ADR_OFF);	// ADRクリア
+LoRaWAN.setAdr(ADR_ON);     // ADRセット
+LoRaWAN.setAdr(ADR_OFF);    // ADRクリア
 ```
 
 ADRが本当に有効化出来るかは、サービスプロパイダ側の実装にも依存する。
@@ -552,15 +552,15 @@ ADRが本当に有効化出来るかは、サービスプロパイダ側の実�
 ADRがセットされているあいだ、setDataRate() の設定は無視され、
 getDataRate() の取得値も意味をなさない。
 データレートは適切な回数または時間経過により動的に調整されるだろう。
-ADR_ON は非移動体通信でかつ ABP_ON と併用するのが望ましい。
+ADR\_ON は非移動体通信でかつ ABP\_ON と併用するのが望ましい。
 移動体通信で ADRを用いると、通信不能になることがある。
-（ADR_OFF にし setDataRate() で DR値を再設定すれば回復する）
+（ADR\_OFF にし setDataRate() で DR値を再設定すれば回復する）
 
 ### bool loraSave (void)
 
 TLM922Sの不揮発メモリに、setDataRate() と setAdr() の設定値を保存させる。
 保存された設定は reset() および電源 ON/OFFしても維持される。
-保存に成功すると真を返す（==PS_OK）
+保存に成功すると真を返す（==PS\_OK）
 
 ```c
 if (LoRaWAN.loraSave()) Serial.println("lorawan save ok");
@@ -573,10 +573,10 @@ if (LoRaWAN.loraSave()) Serial.println("lorawan save ok");
 ### bool join (bool JOIN\_MODE)
 
 TLM922Sに指定のモードで、joinリクエストの発行を指示する。
-第1プロンプトが PS_OK であれば真が返り、joinResult() を実行することができる。
+第1プロンプトが PS\_OK であれば真が返り、joinResult() を実行することができる。
 
-joinモードには JOIN_OTAA（Over the air activation）と、
-JOIN_ABP（Activation By Personalization）とがある。
+joinモードには JOIN\_OTAA（Over the air activation）と、
+JOIN\_ABP（Activation By Personalization）とがある。
 
 ```c
 LoRaWAN.join(JOIN_OTAA) && LoRaWAN.joiResult();
@@ -594,13 +594,13 @@ getResult() の返値は以下の通り。
 
 |真偽|メンバー名|意味|
 |---|---|---|
-|true|PS_OK|コマンド受領・送信開始|
-|false|PS_INVALID|コマンド不正|
-|false|PS_KEYNOTINIT|AppsKey等未設定|
-|false|PS_NOFREECH|キャリアセンス失敗|
-|false|PS_BUSY|RFモジュールが応答しない|
-|false|PS_MODRESET|再起動|
-|false|PS_NOOP|UART応答なし(タイムアウト)|
+|true|PS\_OK|コマンド受領・送信開始|
+|false|PS\_INVALID|コマンド不正|
+|false|PS\_KEYNOTINIT|AppsKey等未設定|
+|false|PS\_NOFREECH|キャリアセンス失敗|
+|false|PS\_BUSY|RFモジュールが応答しない|
+|false|PS\_MODRESET|再起動|
+|false|PS\_NOOP|UART応答なし(タイムアウト)|
 
 電力不足・規定電圧不足の時に本メソッドを実行すると、
 まれに失敗してハードリセットがかかることがある。
@@ -608,7 +608,7 @@ getResult() の返値は以下の通り。
 ### bool joinResult (void)
 
 TLM922Sに指示した joinコマンドの、実行結果を受け取る。
-第2プロンプトが PS_ACCEPTED であれば真が返る。
+第2プロンプトが PS\_ACCEPTED であれば真が返る。
 実行完了までには 10秒程度かかることがある。
 
 ```c
@@ -622,9 +622,9 @@ getResult() の返値は以下の通り。
 
 |真偽|メンバー名|意味|
 |---|---|---|
-|true|PS_ACCEPTED|join成功|
-|false|PS_UNSUCCESS|join失敗|
-|false|PS_NOOP|UART応答なし(タイムアウト)|
+|true|PS\_ACCEPTED|join成功|
+|false|PS\_UNSUCCESS|join失敗|
+|false|PS\_NOOP|UART応答なし(タイムアウト)|
 
 join() + joinResult() を実行する前に factoryReset() を実行するのが望ましい。
 joinに成功するとゲートウェイから使用してもよい電波帯チャンネルリストがダウンリンクされ、
@@ -636,7 +636,7 @@ joinに成功するとゲートウェイから使用してもよい電波帯チ�
 ### bool getDevAddr (void)
 
 TLM922Sから最新の DevAddr文字列を取得する。
-成功すると真を返す（==PS_PREFIX）
+成功すると真を返す（==PS\_PREFIX）
 
 ```c
 if (LoRaWAN.getDevAddr() &&
@@ -648,7 +648,7 @@ if (LoRaWAN.getDevAddr() &&
 
 DevAddr値は、joinするたびに新たな値へ変化し、セッションキーとして使われる。
 
-### uint32_t getUpCount (void)
+### uint32\_t getUpCount (void)
 
 TLM922Sから現在のアップリンクカウント値を取得する。
 アップリンクカウント値は join実行成功時に 1に初期化され、
@@ -664,7 +664,7 @@ uint32_t upcount = LoRaWAN.getUpCount(dr);
 同期が外れるとゲートウェイ側は以後の txをドロップする。
 オーバーフローしたときの挙動は、サービスプロパイダに依存する。
 
-### uint32_t getDownCount (void)
+### uint32\_t getDownCount (void)
 
 TLM922Sから現在のダウンリンクカウント値を取得する。
 ダウンリンクカウント値は join実行成功時に 0に初期化され、
@@ -679,7 +679,7 @@ uint32_t downcount = LoRaWAN.getDownCount(dr);
 ### bool tx (bool TX\_MODE, uint8\_t FPORT)
 
 TLM922Sに送る txコマンドの送信準備を行う。
-成功すると真を返す。（==PS_READY）
+成功すると真を返す。（==PS\_READY）
 
 ```c
 if (!tx(TX_UCNF, 1)) return false;
@@ -689,20 +689,20 @@ getResult() の返値は以下の通り。
 
 |真偽|メンバー名|意味|
 |---|---|---|
-|true|PS_READY|コマンド受付可|
-|false|PS_NOOP|UART応答なし(タイムアウト)|
+|true|PS\_READY|コマンド受付可|
+|false|PS\_NOOP|UART応答なし(タイムアウト)|
 
-TX_MODE には TC_UCNF（unconfirmd）か TX_CNF（confirmd）を指定する。
-TX_CNF はゲートウェイ／サーバに ACKダウンリンクを要求し、
-当該 ACKを txRequest() が受信できない場合は txResult() が PS_ERR となる。
+TX\_MODE には TC\_UCNF（unconfirmd）か TX\_CNF（confirmd）を指定する。
+TX\_CNF はゲートウェイ／サーバに ACKダウンリンクを要求し、
+当該 ACKを txRequest() が受信できない場合は txResult() が PS\_ERR となる。
 
 FPORTには任意のアプリケーションポート番号を指定する。
 指定可能範囲は 1から 223で、それ以外は何らかの内部機能が割り当てられている予約番号である。
 
-### size_t write (char VALUE)
-### size_t write (char* STRING)
-### size_t write (char* STRING, int LEN)
-### size_t print (String STRING)
+### size\_t write (char VALUE)
+### size\_t write (char* STRING)
+### size\_t write (char* STRING, int LEN)
+### size\_t print (String STRING)
 
 TLM922Sへ、指定の文字、文字列を無変換でそのまま送る。
 これらのほか、通常の UARTメソッドはすべて使用できる。
@@ -780,30 +780,30 @@ txData(str);        // "4142" が送られる
 ### bool txRequest (void)
 
 tx() および txData() で準備されたペイロードの送信を指示する。
-第1プロンプトが PS_OK であれば真が返り、txResult() を実行することができる。
+第1プロンプトが PS\_OK であれば真が返り、txResult() を実行することができる。
 
 getResult() の返値は以下の通り。
 
 |真偽|メンバー名|意味|
 |---|---|---|
-|true|PS_OK|コマンド受領・送信開始|
-|false|PS_INVALID|コマンド不正|
-|false|PS_NOTJOINED|join未実行|
-|false|PS_NOFREECH|キャリアセンス失敗／受信ゲインあふれ|
-|false|PS_BUSY|RFモジュールが応答しない|
-|false|PS_INVDLEN|ペイロードデータ長不正|
-|false|PS_MODRESET|再起動|
-|false|PS_NOOP|UART応答なし(タイムアウト)|
+|true|PS\_OK|コマンド受領・送信開始|
+|false|PS\_INVALID|コマンド不正|
+|false|PS\_NOTJOINED|join未実行|
+|false|PS\_NOFREECH|キャリアセンス失敗／受信ゲインあふれ|
+|false|PS\_BUSY|RFモジュールが応答しない|
+|false|PS\_INVDLEN|ペイロードデータ長不正|
+|false|PS\_MODRESET|再起動|
+|false|PS\_NOOP|UART応答なし(タイムアウト)|
 
 txData() で組み立てたペイロードデータがHEX文字列でない、
 あるいは 2の倍数長ではない、
-または getMaxPayLoadSize() の制限を超えている場合は PS_INVDLEN になる。
+または getMaxPayLoadSize() の制限を超えている場合は PS\_INVDLEN になる。
 
 電力不足・規定電圧不足の時に本メソッドを実行すると、
 まれに失敗してハードリセットがかかることがある。
 
-### bool tx (bool TX_MODE, uint8_t FPORT, String DATA)
-### bool txRequest (bool TX_MODE, uint8_t FPORT, String DATA)
+### bool tx (bool TX\_MODE, uint8\_t FPORT, String DATA)
+### bool txRequest (bool TX\_MODE, uint8\_t FPORT, String DATA)
 
 この二つのメソッドはいずれも以下の三つ組メソッドと等価のショートカットである。
 返値は txRequest() を参照のこと。
@@ -818,7 +818,7 @@ return ( tx(confirm, fport) && txData(data) && txRequest() );
 ### bool txResult (void)
 
 TLM922Sに指示した txコマンドの、実行結果を受け取る。
-第2プロンプトが PS_TXOK であれば真が返る。
+第2プロンプトが PS\_TXOK であれば真が返る。
 
 ```c
 if ( LoRaWAN.tx(TX_CNF, 1) &&
@@ -840,22 +840,22 @@ getResult() の返値は以下の通り。
 
 |真偽|メンバー名|意味|
 |---|---|---|
-|true|PS_TXOK|tx送信成功/ACK成功(TX_CNF)|
-|false|PS_ERR|tx送信失敗/ACK受信なし(TX_CNF)/受信ゲインあふれ|
-|false|PS_NOOP|UART応答なし(タイムアウト)|
+|true|PS\_TXOK|tx送信成功/ACK成功(TX\_CNF)|
+|false|PS\_ERR|tx送信失敗/ACK受信なし(TX\_CNF)/受信ゲインあふれ|
+|false|PS\_NOOP|UART応答なし(タイムアウト)|
 
-TC_UCNF の場合、ACK応答の確認が不要なので
-エンドノードが電波発信に成功しさえすれば PS_TXOK が返る。
+TC\_UCNF の場合、ACK応答の確認が不要なので
+エンドノードが電波発信に成功しさえすれば PS\_TXOK が返る。
 また ACK応答を待つ必要はないが、受信待ち自体は一定時間行っている。
 これはリンクチェックを指示している場合や、
 rxダウンリンクが送られてこないかを確認するためで、
-TX_UCNF の場合はこれらが正しく得られなくても TX_ERRとはならない。
+TX\_UCNF の場合はこれらが正しく得られなくても TX\_ERRとはならない。
 
-TX_CNF の場合は受信待ちが発生し、ACK応答が得られなければ、
-あるいは損傷していれば／受信ゲインがあふれれば TX_ERR となる。
-リンクチェック応答が失敗／損傷していても TX_ERR とはならない。
+TX\_CNF の場合は受信待ちが発生し、ACK応答が得られなければ、
+あるいは損傷していれば／受信ゲインがあふれれば TX\_ERR となる。
+リンクチェック応答が失敗／損傷していても TX\_ERR とはならない。
 rxダウンリンクが発生した場合、ペイロードが壊れている場合は
-（ACK受信に成功している場合でも）TX_ERR となる。
+（ACK受信に成功している場合でも）TX\_ERR となる。
 
 rxダウンリンクが受信され、有効なペイロードデータが得られた場合は
 isData() が真を返し、
@@ -864,15 +864,9 @@ getData() でペイロードデータを得られる。
 
 リンクチェック結果が得られた場合は isLinkCheck() が真を返す。
 
-### int8_t getRxPort (void)
-
-rxダウンリンクが受信され、有効なペイロードデータが得られた場合は
-アプリケーションポート番号を返す。
-受信されていない場合は -1 を返す。
-
 ## ユーティリティ
 
-### int32_t getValue (void)
+### int32\_t getValue (void)
 
 TLM922Sから取得した最後の数値データを返す。
 取得に失敗していると -1 を返す。
@@ -884,7 +878,7 @@ int32_t valueInt = LoRaWAN.getValue();
 数値を取得するメソッドは直接整数値を返すようにしているので、
 このメソッドを単独で使うことはない。
 
-### uint8_t isData (void)
+### uint8\_t isData (void)
 
 TLM922Sから文字列データが取得されているを調べる。
 
@@ -898,16 +892,28 @@ if (LoRaWAN.isData()) {
 }
 ```
 
-### uint8_t isRxData (void)
+### int8\_t getRxPort (void)
 
+上級者用：
+rxダウンリンクが受信され、有効なペイロードデータが得られた場合は
+アプリケーションポート番号を返す。
+受信されていない場合は -1 を返す。
+
+### uint8\_t isRxData (void)
+
+上級者用：
 TLM922Sからrxペイロードデータが取得されているならその文字数を返す。
 返されるのは保持しているキャラクタ数で、最大値は 242 byteである。
 
 txResult() で rxダウンリンクペイロードが受信されている場合は真を返す。
 
-### char *getRxData (void)
+### uint8\_t *getRxData (void)
 
-TLM922Sから取得したrxペイロードデータを 文字列ポインタ型で返す。
+上級者用：
+TLM922Sから取得したrxペイロードデータを
+バイト配列ポインタ型で返す。
+
+結果は速やかに処理するか、別のメモリ領域にコピーすること。
 
 txResult() で rxダウンリンクペイロードが受信されている場合は、
 このメソッドで rxペイロードデータが得られる。
@@ -916,15 +922,18 @@ TLM922Sからは HEXDATAが送られてくるが、
 
 最大 242byteのペイロードデータは malloc() で確保したメモリ空間に保持するため、
 malloc() に失敗した場合は取得されない。
-またその有効期間は次に何らかのコマンドを発行するまでである。
+またその有効期間、つまり free() が実行されポインタが無効になるのは
+次に何らかのコマンドを発行されたときである。
 
-### tlmps_t nextPrompt (uint16_t MS)
 
+### tlmps\_t nextPrompt (uint16\_t MS)
+
+上級者用：
 TLM922Sが次のプロンプトまたはプレフィクスを返すまで
 UART受信バッファを読み飛ばす。
 引数にはタイムアウト（ミリ秒）を指定する。
-返り値は tlmps_t列挙型で、
-タイムアウトした場合は PS_NOOPを、
+返り値は tlmps\_t列挙型で、
+タイムアウトした場合は PS\_NOOPを、
 そうでなければ見つかったプロンプトを返す。
 
 このメソッドは本ライブラリで用意されていない
@@ -947,6 +956,7 @@ for (int i = 0; i <= 15; i++) {
 
 ### bool getAllKey (void)
 
+上級者用：
 TLM922Sから アプリケーションキー を取得する。
 成功すると真を返し、getData() で文字列を取得できる。
 
@@ -991,7 +1001,7 @@ OTAAと ABPで使用するカラムがそれぞれ異なる。
 ### bool setLinkCheck (void)
 
 TLM922Sにリンクチェック（MACレイヤーテスト）を指示する。
-成功すると真を返す（==PS_OK）
+成功すると真を返す（==PS\_OK）
 
 このメソッドは通信品質試験用である。
 使用すると txコマンドにて追加の第2プロンプトが発生し、UART受信バッファが溢れやすくなる。
@@ -1002,7 +1012,7 @@ TLM922S は次回の tx送信ペイロードに 1byteの拡張ペイロードを
 このため getMaxPayloadSize() で得られる値より
 1byte少ないペイロードデータしかアプリケーションは送れなくなる。
 また rx受信ペイロードに関しても 2byteの空きが必要である。
-端的に言えば、TX_CNF とともに本番運用で使用すべきではない。
+端的に言えば、TX\_CNF とともに本番運用で使用すべきではない。
 txResult() を参照のこと。
 
 リンクチェックの結果は、次回以降の txコマンドのダウンリンクで得られる。
@@ -1022,7 +1032,7 @@ txResult() を参照のこと。
 直前の txコマンドにて、リンクチェックが成功した場合は真を返す。
 成功していれば getMargin() と getGateways() は有効な値を返す。
 
-### int8_t getMargin (void)
+### int8\_t getMargin (void)
 
 リンクチェックの結果、得られたノイズマージン値を返す。
 値の範囲は 0以上の整数である。無効な場合は -1 を返す。
@@ -1032,8 +1042,8 @@ txResult() を参照のこと。
 ゲートウェイとの距離が遠いかあるいはノイズが多ければ小さくなる。
 0 は電波到達限界の目安となるが、
 31 以上になることはまずありえない。
-それ以前にゲインがあふれて解析不能（PS_ERR）であるか、
-キャリアセンスに失敗（PS_NOFREECH）しているであろう。
+それ以前にゲインがあふれて解析不能（PS\_ERR）であるか、
+キャリアセンスに失敗（PS\_NOFREECH）しているであろう。
 
 リンクチェックの結果は、
 ゲートウェイがバックエンドサーバの応答を確認して生成している。
@@ -1041,7 +1051,7 @@ txResult() を参照のこと。
 逆にバックエンドサーバがリンクチェックに対応していなければ、この値は取得できない。
 つまるところサービスプロパイダの実装依存である。
 
-### int8_t getGateways (void)
+### int8\_t getGateways (void)
 
 リンクチェックの結果、得られた同時応答ゲートウェイの数を返す。
 値の範囲は 1 以上の整数である。無効な場合は -1 を返す。
