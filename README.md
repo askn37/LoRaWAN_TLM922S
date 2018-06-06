@@ -25,6 +25,8 @@ TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装であ
 - SenseWay Inc. [ADB922S](http://amzn.asia/6cFHc8C)
 - SORACOM / A-BIT [AL-050](https://soracom.jp/products/lora/al-050/)
 
+<img src="https://images-na.ssl-images-amazon.com/images/I/71v3262Xv7L._SL1200_.jpg" width="400">
+
 電波法の発信規制により、工場出荷時状態で AS923 の要目を満たさないものは、技適を得ていないかもしれない。
 
 いずれも推奨動作電圧は 3.3Vだが、5Vトレラントであるかは不明であるものの、5V系の Arduinoに直結しても壊れることはない。
