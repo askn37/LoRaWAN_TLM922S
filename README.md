@@ -41,20 +41,16 @@ TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装であ
 
 	スケッチ -> ライブラリをインクルード -> .ZIP形式のライブラリをインストール...
 
-3. 依存関係があるライブラリも同様に読み込む
-
-	[MultiUART](https://github.com/askn37/MultiUART)
-
 ## とっかかり
 
 ```c
 #include <Arduino.h>
-#include <LoRaWAN_TLM922S.h>
+#include <LoRaWAN_TLM922S_SoftwareSerial.h>
 
 #define TX_PIN	12	// D12 O to I TLM_MISO/RX(12)
 #define RX_PIN	11	// D11 I to O TLM_MOSI/TX(11)
 
-LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
+LoRaWAN_TLM922S_SoftwareSerial LoRaWAN(RX_PIN, TX_PIN);
 
 void setup (void) {
     while (!Serial);
@@ -103,44 +99,80 @@ tx送信コマンドは、さらに tx() txData() txRequest() の三つ組のメ
 
 ここでは Arduinoスタイルではなく、型を含めた C/C++スタイルで各メソッドを記述する。
 
-## コンストラクタ
+## コンストラクタとヘッダファイル
 
-### LoRaWAN\_TLM922S (uint8\_t RX\_PIN, uint8\_t TX\_PIN)
+コンストラクタの仕様は、0.1.2 以前とは大幅に変更された。
+0.1.3 より選択する下位の UART インタフェース毎に、
+対応するヘッダファイルとコンストラクタが個別に用意されている。
 
-クラスオブジェクト生成にはこのコンストラクタを使用する。
-受信ピン、送信ピンの指定は必須である。
-ピン番号は Arudiono で規定されたものとする。
-それぞれのピンのIO設定は直ちに行われる。
+|対象UART|LoRaWANヘッダ|コンストラクタ|
+|:---|:---|:---|
+|Serial|LoRaWAN\_TLM922S\_Serial.h|LoRaWAN\_TLM922S\_Software()|
+|Serial1|LoRaWAN\_TLM922S\_Serial1.h|LoRaWAN\_TLM922S\_Software1()|
+|Serial2|LoRaWAN\_TLM922S\_Serial2.h|LoRaWAN\_TLM922S\_Software2()|
+|Serial3|LoRaWAN\_TLM922S\_Serial3.h|LoRaWAN\_TLM922S\_Software3()|
+|SoftwareSerial|LoRaWAN\_TLM922S\_SoftwareSerial.h|LoRaWAN\_TLM922S\_SoftwareSerial(uint8\_t RX\_PIN, uint8\_t TX\_PIN)|
+|MultiUART|LoRaWAN\_TLM922S\_MultiUART.h|LoRaWAN\_TLM922S\_MultiUART(uint8\_t RX\_PIN, uint8\_t TX\_PIN)|
+
+
+### SoftwareSerial.h を使用する場合
+
+SoftwareSerial.h に対応したヘッダファイルをインクルードし、
+RX および TX ピンを指定して同名のコンストラクタを呼び出す。
 
 ```c
+// #include <SoftwareSerial.h>
+#include <LoRaWAN_TLM922S_SoftwareSerial.h>
+
 #define TX_PIN 12
 #define RX_PIN 11
 
 // もっぱらグローバルなオブジェクトとして
-LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
+LoRaWAN_TLM922S_SoftwareSerial LoRaWAN(RX_PIN, TX_PIN);
 LoRaWAN.begin(9600);
 
 // スコープから抜けると破棄されるようなオブジェクトとして
-auto LoRaWAN = new LoRaWAN_TLM922S(RX_PIN, TX_PIN);
+auto LoRaWAN = new LoRaWAN_TLM922S_SoftwareSerial(RX_PIN, TX_PIN);
 LoRaWAN->begin(9600);
 ```
 
-### LoRaWAN\_TLM922S (HardwareSerial*)
+### MultiUART.h を使用する場合
 
-（MultiUARTを継承している場合）ハードウェアシリアルを選択してコンストラクタを呼ぶ。
+対応ヘッダファイルが異なるほかは、SoftwareSerial.h と同等である。
 
 ```c
-LoRaWAN_TLM922S LoRaWAN(Serial1);
-LoRaWAN.begin(115200);
+// #include <MultiUART.h>
+#include <LoRaWAN_TLM922S_MultiUART.h>
+
+#define TX_PIN 12
+#define RX_PIN 11
+
+LoRaWAN_TLM922S_MultiUART LoRaWAN(RX_PIN, TX_PIN);
+LoRaWAN.begin(9600);
 ```
 
-### operator bool (void)
+### HardwareSerial を使用する場合
 
-真偽値として評価された場合、通信準備ができているかを返す。
-実際には常に真を返す。
+Serial/Serial1/Serial2/Serial3
+それぞれに個別の専用ヘッダファイルがあるので、
+これをインクルードしてコンストラクタを呼び出す。
 
 ```c
-if (LoRaWAN) Serial.println("true");
+#include <LoRaWAN_TLM922S_Serial.h>
+LoRaWAN_TLM922S_Serial LoRaWAN;
+LoRaWAN.begin(9600);
+
+#include <LoRaWAN_TLM922S_Serial1.h>
+LoRaWAN_TLM922S_Serial1 LoRaWAN1;
+LoRaWAN1.begin(9600);
+
+#include <LoRaWAN_TLM922S_Serial2.h>
+LoRaWAN_TLM922S_Serial2 LoRaWAN2;
+LoRaWAN2.begin(9600);
+
+#include <LoRaWAN_TLM922S_Serial3.h>
+LoRaWAN_TLM922S_Serial3 LoRaWAN3;
+LoRaWAN3.begin(9600);
 ```
 
 ## インターフェイスメソッド
@@ -173,9 +205,11 @@ LoRaWAN.setEchoThrough(ECHO_OFF);       // エコーバックドロップ（初�
 Serial.begin() がまだ未実行のときにエコーバックがあると、
 Arduino はハングアップするだろう。
 
-Serial 以外を使用するには、
+なお LoRaWAN_TLM922S_Serial.h を使用している場合は、転送先は Serial1 となる。
+
+規定値の Serial 以外を使用するには、
 LoRaWAN\_TLM922S.h ヘッダファイル内の以下の定義を変更する。
-あるいはヘッダファイル読込前に、このプリプロセッサ変数を定義する。
+あるいはヘッダファイルの読込前に、このプリプロセッサ変数を定義する。
 
 ```c
 //
@@ -518,8 +552,8 @@ DR値を高めるほど送信出力は制限されるが、
 エンドノードからゲートウェイへのアップリンク到達距離自体には
 DR2と DR5でそれほどの有利不利はない。
 
-一般に DRが低いほど乱反射による周期的ゴーストの影響を除きやすく、
-DRが高いほど電波の利用効率が高いので同時通信エンドノード数が増やせる。
+一般に DRが低いほど遠距離通信時の通信エラー除去には強いものの外乱は受けやすく、
+DRが高いほど電力消費は半減し、同時通信可能エンドノード数も倍増する。
 
 差が出るのはゲートウェイからエンドノードへむかうダウンリンクのほうで、
 エンドノード用の利得が低くノイズマージンの狭いアンテナでは
@@ -606,6 +640,18 @@ getResult() の返値は以下の通り。
 
 電力不足・規定電圧不足の時に本メソッドを実行すると、
 まれに失敗してハードリセットがかかることがある。
+
+SenseWay ADB922S については、OTAAモードがデフォルトの運用となるファームウェアを用いている。
+join otaa に成功すると追加の通信チャネルが開かれ、join情報とともに内蔵Flashに自動的に記憶される。
+従って電源を落としても join状態・追加チャネル情報が失われることはない。
+（このFlash保存に追加の電力を消費するため、3.0V以下での join 操作は忌避される）
+
+その他社の製品については、おおむねABPモードがデフォルトの運用となるファームウェアを用いている。
+追加の通信チャネルは明示的に設定・Flash保存しない限り初期設定されている2チャネルしか使われないだろう。
+また join otaa 情報は電源オフ毎・リセット毎に忘却するため、再起動毎に再joinしなければならない。
+join abpについては（追加通信チャネル情報以外）デバイス側で保持すべき情報はないため、問題はない。
+（つまり SenseWay ADB922S 以外の製品では、
+join 成功後に明示的に lorawan save を行うのが良いとされる）
 
 ### bool joinResult (void)
 
@@ -1161,6 +1207,11 @@ LoRaWAN はそのなかへほそいキリをえぐりこむかのような手段
 - 英文マニュアルが未整備である。
 
 ## 改版履歴
+
+- 0.1.3
+  - 導入構造を大幅変更。使用するUART個別にヘッダファイルを分割され、
+  MultiUARTは必須ではなくなり、SoftwareSerial や HardwareSerial も
+  容易に選択可能となった。
 
 - 0.1.2
   - isRxData() getRxData() を分離実装。

@@ -10,13 +10,12 @@
  */
 
 #include <Arduino.h>
-#include "LoRaWAN_TLM922S.h"
 
 #define TX_PIN		12			// D12 O to I TLM_MISO/RX(12)
 #define RX_PIN		11			// D11 I to O TLM_MOSI/TX(11)
 #define WAKE_PIN	7			// D7  O to I TLM_INT2/WakeUp/~Sleep(7)
 
-#define SET_ADR     false        // adavtipe datarate mode
+#define SET_ADR     false       // adavtipe datarate mode
 // or
 #define SET_DR      3           // manual datarate
 
@@ -28,26 +27,36 @@
 #define LORAWAN_BAUD	9600
 #define CONSOLE_BAUD	9600
 
-// ピンレベル変化汎用割込
-// このコードは SoftwareSerial とは共存できない
-volatile bool wakeup = false;
-ISR(PCINT0_vect) {              // handle pin change interrupt for D8 to D13 here
-    wakeup = true;
-}
-
 // LoRaWANオブジェクト作成
-LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
+// 使用するUARTライブラリとの組み合わせを選ぶ
+
+#include "LoRaWAN_TLM922S_SoftwareSerial.h"						// Used SoftwareSerial
+LoRaWAN_TLM922S_SoftwareSerial LoRaWAN(RX_PIN, TX_PIN);			// SoftwareSerial
+
+// #include "LoRaWAN_TLM922S_MultiUART.h"						// Used MultiUART
+// LoRaWAN_TLM922S_MultiUART LoRaWAN(RX_PIN, TX_PIN);			// MultiUART
+
+// #include "LoRaWAN_TLM922S_Serial.h"							// Used HardwareSerial-0
+// LoRaWAN_TLM922S_Serial LoRaWAN;								// Serial
+
+// #include "LoRaWAN_TLM922S_Serial1.h"							// Used HardwareSerial-1
+// LoRaWAN_TLM922S_Serial1 LoRaWAN;								// Serial1
+
+// #include "LoRaWAN_TLM922S_Serial2.h"							// Used HardwareSerial-2
+// LoRaWAN_TLM922S_Serial2 LoRaWAN;								// Serial2
+
+// #include "LoRaWAN_TLM922S_Serial3.h"							// Used HardwareSerial-3
+// LoRaWAN_TLM922S_Serial3 LoRaWAN;								// Serial3
 
 void setup (void) {
     bool f;
 
-    // RX_PINのレベル変化割込を有効にして、スリープ終了を検出可能にする
-    *digitalPinToPCMSK(RX_PIN) |= _BV(digitalPinToPCMSKbit(RX_PIN));
-    PCIFR |= _BV(digitalPinToPCICRbit(RX_PIN));
-    PCICR |= _BV(digitalPinToPCICRbit(RX_PIN));
-
     // コンソール出力を有効化
-    while (!Serial);
+    // 起動後最大1秒待つ
+    for (int i = 0; i < 5; i++) {
+        if (Serial) break;
+        delay(200);
+    }
     Serial.begin(CONSOLE_BAUD);
     Serial.println(F("Startup"));
     Serial.print(F("FREQ_CPU:"));
@@ -56,6 +65,7 @@ void setup (void) {
     // LoRaWANモジュールに接続し
     // エコーバック表示を有効化
     LoRaWAN.begin(LORAWAN_BAUD);
+	// LoRaWAN.setThrottle(8);			// (例)MultiUARTの場合の速度調整
     LoRaWAN.setEchoThrough(ECHO_ON);
 
     // Wakeupピンを上げてスリープ解除
@@ -250,15 +260,11 @@ void loop (void) {
     Serial.println(F("[Push any key or 60sec after wakeup]"));
 
     // 現在までのキー入力を読み捨てる
+    Serial.flush();
     while(Serial.available()) Serial.read();
 
-    // 割り込みフラグを初期化
-    wakeup = false;
-
-    // 新たなキー入力があるか、割り込みがあるまで動作停止
-    while(!Serial.available()) {
-        if (wakeup) break;
-    }
+    // UARTから割り込みがあるまで待つ
+	while(!Serial.available() && !LoRaWAN.available());
 
     // Wakeupピンを上げてスリープ解除
     // 成功なら真
@@ -277,31 +283,31 @@ void printResult (void) {
     Serial.print(ps, DEC);
     Serial.write(':');
     switch (ps) {
-        case PS_NOOP       : Serial.println(F("PS_NOOP")); return;
-        case PS_READY      : Serial.println(F("PS_READY")); return;
-        case PS_PREFIX     : Serial.println(F("PS_PREFIX")); return;
-        case PS_ENDRESET   : Serial.println(F("PS_ENDRESET")); return;
-        case PS_MODRESET   : Serial.println(F("PS_MODRESET")); return;
-        case PS_DEMODMARG  : Serial.println(F("PS_DEMODMARG")); return;
-        case PS_NBGATEWAYS : Serial.println(F("PS_NBGATEWAYS")); return;
-        case PS_RX         : Serial.println(F("PS_RX")); return;
-        case PS_OK         : Serial.println(F("PS_OK")); return;
-        case PS_TXOK       : Serial.println(F("PS_TXOK")); return;
-        case PS_ACCEPTED   : Serial.println(F("PS_ACCEPTED")); return;
-        case PS_JOINED     : Serial.println(F("PS_JOINED")); return;
-        case PS_ON         : Serial.println(F("PS_ON")); return;
-        case PS_OFF        : Serial.println(F("PS_OFF")); return;
-        case PS_INVALID    : Serial.println(F("PS_INVALID")); return;
-        case PS_UNKOWN     : Serial.println(F("PS_UNKOWN")); return;
-        case PS_ERR        : Serial.println(F("PS_ERR")); return;
-        case PS_UNSUCCESS  : Serial.println(F("PS_UNSUCCESS")); return;
-        case PS_UNJOINED   : Serial.println(F("PS_UNJOINED")); return;
-        case PS_INVDLEN    : Serial.println(F("PS_INVDLEN")); return;
-        case PS_KEYNOTINIT : Serial.println(F("PS_KEYNOTINIT")); return;
-        case PS_NOFREECH   : Serial.println(F("PS_NOFREECH")); return;
-        case PS_BUSY       : Serial.println(F("PS_BUSY")); return;
-        case PS_NOTJOINED  : Serial.println(F("PS_NOTJOINED")); return;
-        default            : Serial.println(F("???"));
+        case PS_NOOP       : Serial.println(F("PS_NOOP")); break;
+        case PS_READY      : Serial.println(F("PS_READY")); break;
+        case PS_PREFIX     : Serial.println(F("PS_PREFIX")); break;
+        case PS_ENDRESET   : Serial.println(F("PS_ENDRESET")); break;
+        case PS_MODRESET   : Serial.println(F("PS_MODRESET")); break;
+        case PS_DEMODMARG  : Serial.println(F("PS_DEMODMARG")); break;
+        case PS_NBGATEWAYS : Serial.println(F("PS_NBGATEWAYS")); break;
+        case PS_RX         : Serial.println(F("PS_RX")); break;
+        case PS_OK         : Serial.println(F("PS_OK")); break;
+        case PS_TXOK       : Serial.println(F("PS_TXOK")); break;
+        case PS_ACCEPTED   : Serial.println(F("PS_ACCEPTED")); break;
+        case PS_JOINED     : Serial.println(F("PS_JOINED")); break;
+        case PS_ON         : Serial.println(F("PS_ON")); break;
+        case PS_OFF        : Serial.println(F("PS_OFF")); break;
+        case PS_INVALID    : Serial.println(F("PS_INVALID")); break;
+        case PS_UNKOWN     : Serial.println(F("PS_UNKOWN")); break;
+        case PS_ERR        : Serial.println(F("PS_ERR")); break;
+        case PS_UNSUCCESS  : Serial.println(F("PS_UNSUCCESS")); break;
+        case PS_UNJOINED   : Serial.println(F("PS_UNJOINED")); break;
+        case PS_INVDLEN    : Serial.println(F("PS_INVDLEN")); break;
+        case PS_KEYNOTINIT : Serial.println(F("PS_KEYNOTINIT")); break;
+        case PS_NOFREECH   : Serial.println(F("PS_NOFREECH")); break;
+        case PS_BUSY       : Serial.println(F("PS_BUSY")); break;
+        case PS_NOTJOINED  : Serial.println(F("PS_NOTJOINED")); break;
+        default            : Serial.println(F("PS_???"));
     }
 }
 

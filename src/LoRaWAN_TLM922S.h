@@ -12,29 +12,12 @@
 #ifndef __LORAWAN_TLM922S_H
 #define __LORAWAN_TLM922S_H
 
-#include <Arduino.h>
-#include "LoRaWAN_TLM922S_Table.h"
-
-//
-// エコーバックスルー先コンソールの指定（HardwareSerial）
-//
 #ifndef LORAWAN_TLM922S_DEBUG
 #define LORAWAN_TLM922S_DEBUG Serial
 #endif
 
-//
-// 継承するシリアルクラスを選択（MultiUART or SoftwareSerial）
-//
-// #define LORAWAN_TLM922S_USED_SOFTWARESERIAL
-
-#ifdef LORAWAN_TLM922S_USED_SOFTWARESERIAL
-    #include <SoftwareSerial.h>
-    #define LORAWAN_TLM922S_SERIAL SoftwareSerial
-#else
-    #include <MultiUART.h>
-    #define LORAWAN_TLM922S_USED_MULTIUART
-    #define LORAWAN_TLM922S_SERIAL MultiUART
-#endif
+#include <Arduino.h>
+#include "LoRaWAN_TLM922S_Table.h"
 
 //
 // オプション定数
@@ -51,7 +34,7 @@
 //
 // クラス定義
 //
-class LoRaWAN_TLM922S : public LORAWAN_TLM922S_SERIAL {
+class LoRaWAN_TLM922S : public Stream {
 private:
     String _echoBack;               // エコーバックバッファヒープ
     String _terminal;               // ターミナルストアヒープ
@@ -63,13 +46,15 @@ private:
     uint8_t _rxPort;
     int8_t _margin;
     int8_t _gateways;
-    uint8_t _echo = 0;
+    bool _echo = false;
 
     uint8_t parsePrompt (const uint8_t);
     void putCommand (const uint8_t);
     void clearEchoBack (void) { _echoBack = ""; }
     void pushEchoBack (const uint8_t c) { if (_echo) _echoBack += (char)c; }
-    void putEchoBack (void) { if (_echo) LORAWAN_TLM922S_DEBUG.print(_echoBack); clearEchoBack(); }
+    void putEchoBack (void) {
+        if (_echo) LORAWAN_TLM922S_DEBUG.print(_echoBack); clearEchoBack();
+    }
 
     bool wait(uint16_t = 0);
     tlmps_t skipPrompt (uint8_t = PS_READY, uint8_t = PS_READY, uint16_t = 1000);
@@ -83,9 +68,12 @@ private:
     uint32_t parseValue (bool = false, uint16_t timeout = 1000);
 
 public:
- 	using super = LORAWAN_TLM922S_SERIAL;
+ 	using super = Stream;
 	using super::super;
-    LoRaWAN_TLM922S (uint8_t, uint8_t);
+	using super::write;
+	size_t write (const uint8_t c);
+
+	virtual size_t writeRaw (const uint8_t c) = 0;
 
     // command interface method
 
@@ -109,7 +97,9 @@ public:
     bool sleep (uint16_t = 0);
     bool wakeUp (void);
     void setBaudRate (long);
-    inline bool setEcho (bool echo = ECHO_ON) { return runCommand(echo ? EX_MOD_SET_ECHO_ON : EX_MOD_SET_ECHO_OFF); }
+    inline bool setEcho (bool echo = ECHO_ON) {
+        return runCommand(echo ? EX_MOD_SET_ECHO_ON : EX_MOD_SET_ECHO_OFF);
+    }
     inline bool modSave (void) { return runCommand(EX_MOD_SAVE); }
 
     // radio module method
@@ -118,7 +108,9 @@ public:
     bool setDataRate (uint8_t);
     int16_t getMaxPayloadSize (int8_t);
     inline bool getAdr (void) { return runBoolCommand(EX_LORA_GET_ADR); }
-    inline bool setAdr (bool adr = ADR_ON) { return runCommand(adr ? EX_LORA_SET_ADR_ON : EX_LORA_SET_ADR_OFF); }
+    inline bool setAdr (bool adr = ADR_ON) {
+        return runCommand(adr ? EX_LORA_SET_ADR_ON : EX_LORA_SET_ADR_OFF);
+    }
     inline bool loraSave (void) { return runCommand(EX_LORA_SAVE); }
 
     bool join (bool = JOIN_OTAA);
@@ -150,14 +142,6 @@ public:
     inline int8_t getMargin (void) { return _margin; }
     inline int8_t getGateways (void) { return _gateways; }
     inline int8_t getRxPort (void) { return _rxPort; }
-
-    #ifndef LORAWAN_TLM922S_USED_MULTIUART
-	using super::write;
-	size_t write (const uint8_t c);
-    #endif
-
-    static void echoback (super*);
-    static void echobackDrop (super*);
 };
 
 #endif

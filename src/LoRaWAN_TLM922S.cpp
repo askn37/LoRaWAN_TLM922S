@@ -13,18 +13,6 @@
 #include "LoRaWAN_TLM922S.h"
 
 //
-// コンストラクタ
-//
-LoRaWAN_TLM922S::LoRaWAN_TLM922S (uint8_t _RX_PIN, uint8_t _TX_PIN) : super(_RX_PIN, _TX_PIN) {
-    _echo = false;
-
-    // 基底クラスのカスタマイズ
-    #ifdef LORAWAN_TLM922S_USED_MULTIUART
-    super::setWriteBack(&LoRaWAN_TLM922S::echobackDrop);
-    #endif
-}
-
-//
 // プライベートメソッド
 //
 
@@ -76,7 +64,7 @@ void LoRaWAN_TLM922S::putCommand (const uint8_t command) {
     }
     _terminal += (char) addr;
     s = _terminal.length();
-    while (s > 0) this->super::write(_terminal[--s]);
+    while (s > 0) write(_terminal[--s]);
 }
 
 // 分割時間待ち
@@ -109,8 +97,8 @@ bool LoRaWAN_TLM922S::wait (uint16_t timeout) {
 tlmps_t LoRaWAN_TLM922S::nextPrompt (uint16_t timeout) {
     if (timeout) wait(timeout);
     while (wait()) {
-        if (this->super::available()) {
-            uint8_t c = this->super::read();
+        if (available()) {
+            uint8_t c = read();
             pushEchoBack(c);
             uint8_t r = parsePrompt(c);
             if (r != PS_NOOP) {
@@ -124,10 +112,10 @@ tlmps_t LoRaWAN_TLM922S::nextPrompt (uint16_t timeout) {
 
 // 改行を1回打って PS_READY が現れるかを調べる
 bool LoRaWAN_TLM922S::getReady (void) {
-    while (this->super::available()) {
-        this->super::read();
+    while (available()) {
+        read();
     }
-    this->super::write('\r');
+    write('\r');
     uint8_t f = (nextPrompt(100) == PS_READY);
     putEchoBack();
     return f;
@@ -190,19 +178,19 @@ uint32_t LoRaWAN_TLM922S::getValueCommand (uint8_t command, uint16_t timeout) {
 uint32_t LoRaWAN_TLM922S::parseDecimal (void) {
     uint32_t value = 0;
     while (wait()) {
-        if (this->super::available()) {
-            uint8_t c = this->super::peek();
+        if (available()) {
+            uint8_t c = peek();
             if (isDigit(c)) {
                 pushEchoBack(c);
                 value *= 10;
                 value += c - '0';
             }
             else if (c == ' ') {
-                pushEchoBack(this->super::read());
+                pushEchoBack(read());
                 break;
             }
             else break;
-            this->super::read();
+            read();
         }
     }
     return value;
@@ -216,8 +204,8 @@ void LoRaWAN_TLM922S::parseHexData (void) {
     uint16_t recv = 0;
     uint8_t x = 0;
     while (wait()) {
-        if (this->super::available()) {
-            uint8_t c = this->super::peek();
+        if (available()) {
+            uint8_t c = peek();
             if (isHexadecimalDigit(c)) {
                 c -= '0';
                 if (c >= 17) c -= 7;
@@ -227,7 +215,7 @@ void LoRaWAN_TLM922S::parseHexData (void) {
                 else if (_rxDataLen < 242) _rxData[_rxDataLen++] = x | c;
             }
             else break;
-            this->super::read();
+            read();
         }
     }
     if (_echo) {
@@ -245,8 +233,8 @@ uint32_t LoRaWAN_TLM922S::parseValue (bool t, uint16_t timeout) {
     _terminal = "";
     wait(timeout);
     while (wait()) {
-        if (this->super::available()) {
-            uint8_t c = this->super::read();
+        if (available()) {
+            uint8_t c = read();
             uint8_t r = parsePrompt(c);
             pushEchoBack(c);
             if (f) {
@@ -277,39 +265,19 @@ uint32_t LoRaWAN_TLM922S::parseValue (bool t, uint16_t timeout) {
 //
 // パブリックメソッド
 //
-
-#ifdef LORAWAN_TLM922S_USED_MULTIUART
-// エコーバックのコールバック
-// 受信バッファの先頭が '\r' なら以後は応答なので捨てない
-void LoRaWAN_TLM922S::echoback (MultiUART* UART) {
-    if (UART->available() && UART->peek() != '\r') {
-        LORAWAN_TLM922S_DEBUG.write(UART->read());
-    }
-}
-// エコーしない場合でも読み捨ては行う
-void LoRaWAN_TLM922S::echobackDrop (MultiUART* UART) {
-    if (UART->available() && UART->peek() != '\r') UART->read();
-}
-#else
-// MultiUART以外は writeを上書きする
 size_t LoRaWAN_TLM922S::write (const uint8_t c) {
-	size_t r = this->super::write(c);
-    if (this->super::available() &&
-        this->super::peek() != '\r') {
-        uint8_t c = this->super::read();
+	size_t r = writeRaw(c);
+    if (available() &&
+        peek() != '\r') {
+        uint8_t c = read();
         if (_echo) LORAWAN_TLM922S_DEBUG.write(c);
     }
 	return r;
 }
-#endif
 
 // write時のエコーバックを有効・無効にする
 void LoRaWAN_TLM922S::setEchoThrough (bool through) {
-    #ifdef LORAWAN_TLM922S_USED_MULTIUART
-    if (through) super::setWriteBack(&LoRaWAN_TLM922S::echoback);
-    else super::setWriteBack(&LoRaWAN_TLM922S::echobackDrop);
-    #endif
-    _echo = through;
+	_echo = through;
 }
 
 // リセットコマンドを実行する
@@ -327,11 +295,11 @@ bool LoRaWAN_TLM922S::reset (void) {
 bool LoRaWAN_TLM922S::sleep (uint16_t seconds) {
     if (!getReady()) return false;
     putCommand(EX_MOD_SLEEP);
-    this->super::print(seconds, DEC);
-    this->super::write('\r');
-    while (this->super::available()) {
-        if (this->super::peek() == '\r') break;
-        pushEchoBack(this->super::read());
+    print(seconds, DEC);
+    write('\r');
+    while (available()) {
+        if (peek() == '\r') break;
+        pushEchoBack(read());
     }
     putEchoBack();
     return true;
@@ -350,8 +318,8 @@ bool LoRaWAN_TLM922S::wakeUp (void) {
 void LoRaWAN_TLM922S::setBaudRate (long baudrate) {
     if (!getReady()) return;
     putCommand(EX_MOD_SET_BAUD);
-    this->super::print(baudrate, DEC);
-    this->super::write('\r');
+    print(baudrate, DEC);
+    write('\r');
 }
 
 //
@@ -362,8 +330,8 @@ void LoRaWAN_TLM922S::setBaudRate (long baudrate) {
 bool LoRaWAN_TLM922S::setDataRate (uint8_t datarate) {
     if (!getReady()) return false;
     putCommand(EX_LORA_SET_DR);
-    this->super::print(datarate, DEC);
-    this->super::write('\r');
+    print(datarate, DEC);
+    write('\r');
     uint8_t r = skipPrompt(PS_OK, PS_READY);
     uint8_t f = r == PS_OK;
     if (r != PS_READY) skipPrompt();
@@ -375,8 +343,8 @@ bool LoRaWAN_TLM922S::setDataRate (uint8_t datarate) {
 int16_t LoRaWAN_TLM922S::getMaxPayloadSize (int8_t dr) {
     if (!getReady()) return false;
     putCommand(EX_LOLA_GET_MAX_PAY);
-    this->super::print(dr, DEC);
-    this->super::write('\r');
+    print(dr, DEC);
+    write('\r');
     return parseValue(false, 1000);
 }
 
@@ -398,8 +366,8 @@ bool LoRaWAN_TLM922S::joinResult (void) {
     bool f = false;
     wait(10000);
     while (wait()) {
-        if (this->super::available()) {
-            uint8_t c = this->super::read();
+        if (available()) {
+            uint8_t c = read();
             uint8_t r = parsePrompt(c);
             pushEchoBack(c);
             if (r != PS_NOOP) {
@@ -422,8 +390,8 @@ bool LoRaWAN_TLM922S::joinResult (void) {
 bool LoRaWAN_TLM922S::tx (bool confirm, uint8_t fport) {
     if (!getReady()) return false;
     putCommand(confirm ? EX_LORA_TX_CNF : EX_LORA_TX_UCNF);
-    this->super::print(fport, DEC);
-    this->super::write(' ');
+    print(fport, DEC);
+    write(' ');
     return true;
 }
 
@@ -433,7 +401,7 @@ bool LoRaWAN_TLM922S::txData (uint32_t value, int nibble) {
     for (int i = 8; i > 0; i--) {
         if (i <= nibble) {
             uint8_t c = value >> 28;
-            this->super::print(c, HEX);
+            print(c, HEX);
         }
         value <<= 4;
     }
@@ -444,15 +412,15 @@ bool LoRaWAN_TLM922S::txData (uint32_t value, int nibble) {
 // String型をビッグエンディアン HEXDIGIT で送る
 bool LoRaWAN_TLM922S::txData (String str) {
     for (auto c : str) {
-        this->super::print(c >> 4, HEX);
-        this->super::print(c & 15, HEX);
+        print(c >> 4, HEX);
+        print(c & 15, HEX);
     }
     return true;
 }
 bool LoRaWAN_TLM922S::txData (const char* str, int len) {
     for (int i = 0; i < len; i++) {
-        this->super::print((uint8_t)str[i] >> 4, HEX);
-        this->super::print((uint8_t)str[i] & 15, HEX);
+        print((uint8_t)str[i] >> 4, HEX);
+        print((uint8_t)str[i] & 15, HEX);
     }
     return true;
 }
@@ -460,7 +428,7 @@ bool LoRaWAN_TLM922S::txData (const char* str, int len) {
 // tx送信実行
 // 第1プロンプト応答に 500ms待つ
 bool LoRaWAN_TLM922S::txRequest (void) {
-    this->super::write('\r');
+    write('\r');
     uint8_t r = skipPrompt(PS_OK, PS_READY);
     uint8_t f = r == PS_OK;
     if (r != PS_READY) skipPrompt();
@@ -476,8 +444,8 @@ bool LoRaWAN_TLM922S::txResult (void) {
     _rxPort = 0;
     wait(10000);
     while (wait()) {
-        if (this->super::available()) {
-            uint8_t c = this->super::read();
+        if (available()) {
+            uint8_t c = read();
             uint8_t r = parsePrompt(c);
             pushEchoBack(c);
             if (r != PS_NOOP) {
