@@ -12,7 +12,6 @@
 #define MULTIUART_BASEFREQ 76800
 
 #include <Arduino.h>
-#include <LoRaWAN_TLM922S.h>
 
 #define CONSOLE_BAUD	9600
 
@@ -20,7 +19,26 @@
 #define RX_PIN		11			// D11 I to O TLM_MOSI/TX(11)
 #define WAKE_PIN	7			// D7  O to I TLM_INT2/WakeUp/~Sleep(7)
 
-LoRaWAN_TLM922S LoRaWAN(RX_PIN, TX_PIN);
+// LoRaWANオブジェクト作成
+// 使用するUARTライブラリとの組み合わせを選ぶ
+
+// #include "LoRaWAN_TLM922S_SoftwareSerial.h"						// Used SoftwareSerial
+// LoRaWAN_TLM922S_SoftwareSerial LoRaWAN(RX_PIN, TX_PIN);			// SoftwareSerial
+
+#include "LoRaWAN_TLM922S_MultiUART.h"						// Used MultiUART
+LoRaWAN_TLM922S_MultiUART LoRaWAN(RX_PIN, TX_PIN);			// MultiUART
+
+// #include "LoRaWAN_TLM922S_Serial.h"							// Used HardwareSerial-0
+// LoRaWAN_TLM922S_Serial LoRaWAN;								// Serial
+
+// #include "LoRaWAN_TLM922S_Serial1.h"							// Used HardwareSerial-1
+// LoRaWAN_TLM922S_Serial1 LoRaWAN;								// Serial1
+
+// #include "LoRaWAN_TLM922S_Serial2.h"							// Used HardwareSerial-2
+// LoRaWAN_TLM922S_Serial2 LoRaWAN;								// Serial2
+
+// #include "LoRaWAN_TLM922S_Serial3.h"							// Used HardwareSerial-3
+// LoRaWAN_TLM922S_Serial3 LoRaWAN;								// Serial3
 
 uint32_t baudrateLists[] = {38400, 28800, 19200, 9600};
 
@@ -38,6 +56,7 @@ void setup (void) {
         Serial.print(F("Baudrate: "));
         Serial.println(baudrate);
         LoRaWAN.begin(baudrate);
+	    // LoRaWAN.setEchoThrough(ECHO_ON);
         if (LoRaWAN.getReady() &&
             LoRaWAN.factoryReset() &&
             LoRaWAN.getReady()) {
@@ -54,6 +73,8 @@ void setup (void) {
     LoRaWAN.getVersion();
     Serial.print(F("Version: ")); Serial.println(LoRaWAN.getData());
 
+#ifdef __MULTIUART_H
+	LoRaWAN.setThrottle(8);
     LoRaWAN.setRxBuffer(buffer, 256);
     LoRaWAN.getAllKey();
     LoRaWAN.setRxBuffer();
@@ -74,6 +95,7 @@ void setup (void) {
     Serial.print(F(" AppKey: ")); Serial.println(text[4]);
     Serial.print(F("NwkSKey: ")); Serial.println(text[5]);
     Serial.print(F("AppSKey: ")); Serial.println(text[6]);
+#endif
 }
 
 void loop (void) {}

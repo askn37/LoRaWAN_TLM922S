@@ -51,6 +51,10 @@ public:
     inline void setThrottle (int16_t throttle = 0) {
 		_UART->setThrottle(throttle);
 	}
+    inline void setRxBuffer (volatile char* _buffAddr = NULL, int _buffMax = 0) {
+		_UART->setRxBuffer(_buffAddr, _buffMax);
+	}
+
 };
 #endif
 
