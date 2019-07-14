@@ -45,6 +45,7 @@ TLM922S-P01A LoRaWAN Module シリーズのための Arduino IDE 用実装であ
 
 ```c
 #include <Arduino.h>
+#include <SoftwareSerial.h>
 #include <LoRaWAN_TLM922S_SoftwareSerial.h>
 
 #define TX_PIN	12	// D12 O to I TLM_MISO/RX(12)
@@ -117,11 +118,13 @@ tx送信コマンドは、さらに tx() txData() txRequest() の三つ組のメ
 
 ### SoftwareSerial.h を使用する場合
 
-SoftwareSerial.h に対応したヘッダファイルをインクルードし、
+SoftwareSerial.h と、
+それに対応したヘッダファイルをペアでインクルードし、
 RX および TX ピンを指定して同名のコンストラクタを呼び出す。
+2個のヘッダは、この順序でインクルードしなければならない。
 
 ```c
-// #include <SoftwareSerial.h>
+#include <SoftwareSerial.h>
 #include <LoRaWAN_TLM922S_SoftwareSerial.h>
 
 #define TX_PIN 12
@@ -139,9 +142,11 @@ LoRaWAN->begin(9600);
 ### MultiUART.h を使用する場合
 
 対応ヘッダファイルが異なるほかは、SoftwareSerial.h と同等である。
+2個のヘッダは、この順序でインクルードしなければならない。
+
 
 ```c
-// #include <MultiUART.h>
+#include <MultiUART.h>
 #include <LoRaWAN_TLM922S_MultiUART.h>
 
 #define TX_PIN 12

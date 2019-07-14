@@ -9,6 +9,8 @@
  *
  */
 
+// #include <SoftwareSerial.h>
+#if defined(SoftwareSerial_h)
 #ifndef __LORAWAN_TLM922S_SOFTWARESERIAL_H
 #define __LORAWAN_TLM922S_SOFTWARESERIAL_H
 
@@ -20,7 +22,6 @@
 #endif
 
 #include <Arduino.h>
-#include <SoftwareSerial.h>
 #include "LoRaWAN_TLM922S.h"
 
 //
@@ -48,3 +49,6 @@ public:
 	}
 };
 #endif
+#endif
+
+// end of header

@@ -9,6 +9,8 @@
  *
  */
 
+// #include <MultiUART.h>
+#if defined(__MULTIUART_H)
 #ifndef __LORAWAN_TLM922S_MULTIUART_H
 #define __LORAWAN_TLM922S_MULTIUART_H
 
@@ -20,7 +22,6 @@
 #endif
 
 #include <Arduino.h>
-#include <MultiUART.h>
 #include "LoRaWAN_TLM922S.h"
 
 //
@@ -47,7 +48,6 @@ public:
 
 	// MultiUARTの場合
 	inline size_t write (const uint8_t c) { return _UART->write(c); }
-	void setEchoThrough (bool);
     inline void setThrottle (int16_t throttle = 0) {
 		_UART->setThrottle(throttle);
 	}
@@ -55,7 +55,27 @@ public:
 		_UART->setRxBuffer(_buffAddr, _buffMax);
 	}
 
+	// エコーバックのコールバック
+	// 受信バッファの先頭が '\r' なら以後は応答なので捨てない
+	static void LoRaWAN_TLM922S_MultiUART_echoback (MultiUART* UART) {
+		if (UART->available() && UART->peek() != '\r') {
+			LORAWAN_TLM922S_DEBUG.write(UART->read());
+		}
+	}
+	// エコーしない場合でも読み捨ては行う
+	static void LoRaWAN_TLM922S_MultiUART_echobackDrop (MultiUART* UART) {
+		if (UART->available() && UART->peek() != '\r') UART->read();
+	}
+
+	// write時のエコーバックを有効・無効にする
+	void setEchoThrough (bool through) {
+		if (through) _UART->setWriteBack(&LoRaWAN_TLM922S_MultiUART_echoback);
+		else _UART->setWriteBack(&LoRaWAN_TLM922S_MultiUART_echobackDrop);
+		super::setEchoThrough(through);
+	}
+
 };
+#endif
 #endif
 
 // end of header

@@ -20,7 +20,6 @@
 #endif
 
 #include <Arduino.h>
-#include <SoftwareSerial.h>
 #include "LoRaWAN_TLM922S.h"
 
 //
@@ -39,3 +38,5 @@ public:
 	void begin (long baud) { Serial.begin(baud); }
 };
 #endif
+
+// end of header

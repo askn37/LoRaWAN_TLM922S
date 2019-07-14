@@ -21,9 +21,11 @@
 // LoRaWANオブジェクト作成
 // 使用するUARTライブラリとの組み合わせを選ぶ
 
+#include <SoftwareSerial.h>
 #include "LoRaWAN_TLM922S_SoftwareSerial.h"						// Used SoftwareSerial
 LoRaWAN_TLM922S_SoftwareSerial LoRaWAN(RX_PIN, TX_PIN);			// SoftwareSerial
 
+// #include <MultiUART.h>
 // #include "LoRaWAN_TLM922S_MultiUART.h"						// Used MultiUART
 // LoRaWAN_TLM922S_MultiUART LoRaWAN(RX_PIN, TX_PIN);			// MultiUART
 
