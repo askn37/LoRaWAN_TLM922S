@@ -266,18 +266,18 @@ uint32_t LoRaWAN_TLM922S::parseValue (bool t, uint16_t timeout) {
 // パブリックメソッド
 //
 size_t LoRaWAN_TLM922S::write (const uint8_t c) {
-	size_t r = writeRaw(c);
+    size_t r = writeRaw(c);
     if (available() &&
         peek() != '\r') {
         uint8_t c = read();
         if (_echo) LORAWAN_TLM922S_DEBUG.write(c);
     }
-	return r;
+    return r;
 }
 
 // write時のエコーバックを有効・無効にする
 void LoRaWAN_TLM922S::setEchoThrough (bool through) {
-	_echo = through;
+    _echo = through;
 }
 
 // リセットコマンドを実行する

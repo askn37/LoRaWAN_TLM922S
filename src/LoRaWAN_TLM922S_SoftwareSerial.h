@@ -29,24 +29,24 @@
 //
 class LoRaWAN_TLM922S_SoftwareSerial : public LoRaWAN_TLM922S {
 private:
-	SoftwareSerial* _Serial;
+    SoftwareSerial* _Serial;
 public:
- 	using super = LoRaWAN_TLM922S;
-	using super::super;
-	using super::write;
-	inline int available (void) { return _Serial->available(); }
-	inline size_t writeRaw (const uint8_t c) { return _Serial->write(c); }
-	inline int peek (void) { return _Serial->peek(); }
-	inline int read (void) { return _Serial->read(); }
-	inline void flush (void) { _Serial->flush(); }
-	void begin (long baud) { _Serial->begin(baud); _Serial->flush(); }
+    using super = LoRaWAN_TLM922S;
+    using super::super;
+    using super::write;
+    inline int available (void) { return _Serial->available(); }
+    inline size_t writeRaw (const uint8_t c) { return _Serial->write(c); }
+    inline int peek (void) { return _Serial->peek(); }
+    inline int read (void) { return _Serial->read(); }
+    inline void flush (void) { _Serial->flush(); }
+    void begin (long baud) { _Serial->begin(baud); _Serial->flush(); }
 
-	LoRaWAN_TLM922S_SoftwareSerial (
-		uint8_t receivePin,
-		uint8_t transmitPin,
-		bool inverse_logic = false) {
-		_Serial = new SoftwareSerial(receivePin, transmitPin, inverse_logic);
-	}
+    LoRaWAN_TLM922S_SoftwareSerial (
+        uint8_t receivePin,
+        uint8_t transmitPin,
+        bool inverse_logic = false) {
+        _Serial = new SoftwareSerial(receivePin, transmitPin, inverse_logic);
+    }
 };
 #endif
 #endif

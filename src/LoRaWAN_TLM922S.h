@@ -68,12 +68,12 @@ private:
     uint32_t parseValue (bool = false, uint16_t timeout = 1000);
 
 public:
- 	using super = Stream;
-	using super::super;
-	using super::write;
-	size_t write (const uint8_t c);
+    using super = Stream;
+    using super::super;
+    using super::write;
+    size_t write (const uint8_t c);
 
-	virtual size_t writeRaw (const uint8_t c) = 0;
+    virtual size_t writeRaw (const uint8_t c) = 0;
 
     // command interface method
 
@@ -145,3 +145,5 @@ public:
 };
 
 #endif
+
+// end of header

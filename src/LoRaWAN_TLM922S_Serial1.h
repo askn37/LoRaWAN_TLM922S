@@ -27,14 +27,14 @@
 //
 class LoRaWAN_TLM922S_Serial1 : public LoRaWAN_TLM922S {
 public:
- 	using super = LoRaWAN_TLM922S;
-	using super::super;
-	using super::write;
-	inline int available (void) { return Serial1.available(); }
-	inline size_t writeRaw (const uint8_t c) { return Serial1.write(c); }
-	inline int peek (void) { return Serial1.peek(); }
-	inline int read (void) { return Serial1.read(); }
-	inline void flush (void) { Serial1.flush(); }
-	void begin (long baud) { Serial1.begin(baud); }
+    using super = LoRaWAN_TLM922S;
+    using super::super;
+    using super::write;
+    inline int available (void) { return Serial1.available(); }
+    inline size_t writeRaw (const uint8_t c) { return Serial1.write(c); }
+    inline int peek (void) { return Serial1.peek(); }
+    inline int read (void) { return Serial1.read(); }
+    inline void flush (void) { Serial1.flush(); }
+    void begin (long baud) { Serial1.begin(baud); }
 };
 #endif
