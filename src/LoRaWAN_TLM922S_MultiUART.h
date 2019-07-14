@@ -31,7 +31,7 @@ class LoRaWAN_TLM922S_MultiUART : public LoRaWAN_TLM922S {
 private:
     MultiUART* _UART;
 public:
-     using super = LoRaWAN_TLM922S;
+    using super = LoRaWAN_TLM922S;
     using super::super;
     using super::write;
 

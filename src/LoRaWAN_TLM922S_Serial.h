@@ -25,7 +25,7 @@
 //
 // クラス定義
 //
-class LoRaWAN_TLM922S_SoftwareSerial : public LoRaWAN_TLM922S {
+class LoRaWAN_TLM922S_Serial : public LoRaWAN_TLM922S {
 public:
     using super = LoRaWAN_TLM922S;
     using super::super;
