@@ -257,6 +257,10 @@ void loop (void) {
     Serial.print(F("=sleep:")); Serial.println(f);
     // printResult();   // no prompt
 
+	// UARTバッファを空にする
+	LoRaWAN.flush();
+    while(LoRaWAN.available()) LoRaWAN.read();
+
     // 任意のキー入力がコンソールにあるまで待機
     Serial.println();
     Serial.println(F("[Push any key or 60sec after wakeup]"));
