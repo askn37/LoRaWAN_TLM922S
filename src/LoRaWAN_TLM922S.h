@@ -94,7 +94,7 @@ public:
     inline bool getVersion (void) { return getStringCommand(EX_MOD_GET_VER); }
     inline bool getDevEUI (void) { return getStringCommand(EX_MOD_GET_DEVEUI); }
     inline bool getAllKey (void) { return getStringCommand(EX_MP_GETKEY); }
-    bool sleep (uint16_t = 0);
+    bool sleep (uint16_t = 0, bool = false);
     bool wakeUp (void);
     void setBaudRate (long);
     inline bool setEcho (bool echo = ECHO_ON) {

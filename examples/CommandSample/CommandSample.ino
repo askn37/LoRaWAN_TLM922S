@@ -73,6 +73,7 @@ void setup (void) {
     // Wakeupピンを上げてスリープ解除
     pinMode(WAKE_PIN, OUTPUT);
     digitalWrite(WAKE_PIN, HIGH);
+	delay(1000);
 
     // デバイスの準備ができるのを待つ
     while (!LoRaWAN.getReady()) {
@@ -117,8 +118,7 @@ void setup (void) {
     }
 
     // joinが成功するまでループ
-    do {
-        if (!f) delay(2000);
+    while(true) {
 
         // joinする
         // 第1プロンプト結果が Okなら真
@@ -129,9 +129,19 @@ void setup (void) {
             // 結果が acceptedなら真
             f = LoRaWAN.joinResult();
             Serial.print(F("=joinResult:")); Serial.println(f);
+			if (f) {
+		        printResult();
+				break;
+			}
         }
         printResult();
-    } while (!f);
+
+		f = LoRaWAN.reset();
+		Serial.print(F("=reset:")); Serial.println(f);
+		printResult();
+
+        delay(4000);
+    };
 
     // join後のDevAddr文字列取得（OTAAで成功すれば以前と変わっている）
     // 成功すれば真
@@ -275,6 +285,8 @@ void loop (void) {
     // Wakeupピンを上げてスリープ解除
     // 成功なら真
     digitalWrite(WAKE_PIN, HIGH);
+	delay(1000);
+
     f = LoRaWAN.wakeUp();
     Serial.print(F("=wakeUp:")); Serial.println(f);
     printResult();

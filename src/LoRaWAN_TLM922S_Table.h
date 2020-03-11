@@ -14,14 +14,14 @@
 #include <avr/pgmspace.h>
 
 #define PS_DICT_MAX (167)
-#define CMD_DIC_LEN (199)
+#define CMD_DIC_LEN (195)
 #define CMD_TABLE_LEN (26)
 
 extern const PROGMEM uint32_t PS_DICT[];    // 668 bytes
-extern const PROGMEM uint8_t CMD_DICT[];    // 597 bytes
+extern const PROGMEM uint8_t CMD_DICT[];    // 585 bytes
 extern const PROGMEM uint16_t CMD_TABLE[];  // 52 bytes
 
-// total 1317 bytes
+// total 1305 bytes
 
 typedef enum tlmps {
       PS_NOOP        	= 0
@@ -55,7 +55,7 @@ typedef enum tlmex {
     , EX_MOD_SAVE           = 1     // mod save\r []
     , EX_MOD_RESET          = 2     // mod reset\r [ex_resetAfter]
     , EX_MOD_FACTRY         = 3     // mod factory_reset\r []
-    , EX_MOD_SLEEP          = 4     // mod sleep 1 1 <F> []
+    , EX_MOD_SLEEP          = 4     // mod sleep <F> []
     , EX_MOD_GET_VER        = 5     // mod get_ver\r [ex_str]
     , EX_MOD_GET_DEVEUI     = 6     // mod get_hw_deveui\r [ex_hex]
     , EX_MOD_SET_ECHO_OFF   = 7     // mod set_echo off\r []

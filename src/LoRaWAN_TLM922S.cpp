@@ -291,10 +291,14 @@ bool LoRaWAN_TLM922S::reset (void) {
     return f;
 }
 
-// ディープスリープを実行する
-bool LoRaWAN_TLM922S::sleep (uint16_t seconds) {
+// スリープを実行する
+bool LoRaWAN_TLM922S::sleep (uint16_t seconds, bool deep) {
     if (!getReady()) return false;
     putCommand(EX_MOD_SLEEP);
+    write(deep ? '1' : '0');
+    write(' ');
+    write('1');		// P21 D7/INT2 trigger
+    write(' ');
     print(seconds, DEC);
     write('\r');
     while (available()) {
