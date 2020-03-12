@@ -580,7 +580,7 @@ Region AS923 では日本の電波法規定の要請により、
 
 Dwell値（ドエル＝間欠休止）は使用帯域によって制約が異なる。
 日本では一部の周波数でしか Dwell=0 を使ってはならないため、
-日本向け TLM922S ではこちらが規定値である。
+日本向け TLM922S では 1 が規定値である。
 
 DR値を高めるほど送信出力は制限されるが、
 エンドノードからゲートウェイへのアップリンク到達距離自体には
@@ -604,7 +604,7 @@ TLM922Sに設定された現在の Adaptive Data Rate スケジュール（ADR�
 結果が PS\_ONなら真を返す。
 
 ```c
-if (LoRaWAN.getAdr()) Serial.println("lorawan get\_adr on");
+if (LoRaWAN.getAdr()) Serial.println("lorawan get_adr on");
 ```
 
 ### bool setAdr (bool ADR\_MODE)
@@ -926,7 +926,7 @@ getResult() の返値は以下の通り。
 |false|PS\_ERR|tx送信失敗/ACK受信なし(TX\_CNF)/受信ゲインあふれ|
 |false|PS\_NOOP|UART応答なし(タイムアウト)|
 
-TC\_UCNF の場合、ACK応答の確認が不要なので
+TX\_UCNF の場合、ACK応答の確認が不要なので
 エンドノードが電波発信に成功しさえすれば PS\_TXOK が返る。
 また ACK応答を待つ必要はないが、受信待ち自体は一定時間行っている。
 これはリンクチェックを指示している場合や、
@@ -1241,6 +1241,9 @@ LoRaWAN はそのなかへほそいキリをえぐりこむかのような手段
 - 英文マニュアルが未整備である。
 
 ## 改版履歴
+
+- 0.1.5.1
+  - いくつかの軽微な修正。
 
 - 0.1.5
   - sleep() の規定動作を Standby Sleep に変更。

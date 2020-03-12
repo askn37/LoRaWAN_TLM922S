@@ -136,9 +136,9 @@ void setup (void) {
         }
         printResult();
 
-		f = LoRaWAN.reset();
-		Serial.print(F("=reset:")); Serial.println(f);
-		printResult();
+		// f = LoRaWAN.reset();
+		// Serial.print(F("=reset:")); Serial.println(f);
+		// printResult();
 
         delay(4000);
     };
@@ -285,7 +285,6 @@ void loop (void) {
     // Wakeupピンを上げてスリープ解除
     // 成功なら真
     digitalWrite(WAKE_PIN, HIGH);
-	delay(1000);
 
     f = LoRaWAN.wakeUp();
     Serial.print(F("=wakeUp:")); Serial.println(f);
