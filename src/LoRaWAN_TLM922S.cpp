@@ -26,7 +26,7 @@ uint8_t LoRaWAN_TLM922S::parsePrompt (const uint8_t c) {
     uint32_t newword = prevword | ((uint32_t)c << 16);
     uint16_t index = newword % PS_DICT_MAX;
     if (!c) return ( prevword = PS_NOOP );
-    while (hash = pgm_read_dword_near(PS_DICT + index)) {
+    while ((hash = pgm_read_dword_near(PS_DICT + index))) {
         prevword = index + 0x100;
         if (((hash - newword) << 8) == 0) {
             return ( hash >> 24 );
