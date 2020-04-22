@@ -293,16 +293,20 @@ bool LoRaWAN_TLM922S::reset (void) {
 
 // スリープを実行する
 bool LoRaWAN_TLM922S::sleep (uint16_t seconds, bool deep) {
+    bool fail = true;
     if (!getReady()) return false;
     putCommand(deep ? EX_MOD_DEEP_SLEEP : EX_MOD_SLEEP);
     print(seconds, DEC);
     write('\r');
-    while (available()) {
-        if (peek() == '\r') break;
-        pushEchoBack(read());
+    wait(1000);
+    while (wait()) {
+        while (available()) {
+            if (peek() == '\r') fail = false;
+            pushEchoBack(read());
+        }
     }
     putEchoBack();
-    return true;
+    return fail;
 }
 
 // スリープから起きたことを確認する
